@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "manage-my-hairsaloon/1.0.0": {
+        "runtime": {
+          "manage-my-hairsaloon.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "manage-my-hairsaloon/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
