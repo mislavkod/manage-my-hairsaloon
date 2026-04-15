@@ -1,0 +1,40 @@
+@model List<manage_my_hairsaloon.Models.Review>
+@{
+    ViewData["Title"] = "Reviews";
+}
+
+<div class="page-header">
+    <h1>Reviews</h1>
+</div>
+
+<div class="table-responsive">
+    <table class="table-barbershop">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var review in Model)
+            {
+                <tr>
+                    <td>@review.Customer?.FirstName @review.Customer?.LastName</td>
+                    <td>
+                        <span class="rating-stars">
+                            @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
+                        </span>
+                    </td>
+                    <td>@(review.Comment?.Length > 80 ? review.Comment.Substring(0, 80) + "…" : review.Comment)</td>
+                    <td>@review.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>
+                        <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

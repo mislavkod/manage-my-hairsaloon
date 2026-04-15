@@ -1,0 +1,84 @@
+@model manage_my_hairsaloon.Models.Review
+@{
+    ViewData["Title"] = $"Review #{Model.Id}";
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
+}
+
+<div class="page-header">
+    <h1>Review #@Model.Id</h1>
+</div>
+
+<div class="card-barbershop">
+    <dl class="detail-list">
+        <dt>Rating</dt>
+        <dd>
+            <span class="rating-stars">
+                @for (int i = 0; i < Model.Rating; i++) { <text>★</text> }@for (int i = Model.Rating; i < 5; i++) { <text>☆</text> }
+            </span>
+            <span style="margin-left:0.5rem; color:var(--clr-sand); font-size:0.85rem;">(@Model.Rating / 5)</span>
+        </dd>
+
+        <dt>Comment</dt>
+        <dd>@Model.Comment</dd>
+
+        <dt>Created At</dt>
+        <dd>@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</dd>
+    </dl>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <h2 class="section-title">Customer</h2>
+        <div class="card-barbershop">
+            @if (Model.Customer != null)
+            {
+                <dl class="detail-list">
+                    <dt>Name</dt>
+                    <dd>@Model.Customer.FirstName @Model.Customer.LastName</dd>
+                    <dt>Email</dt>
+                    <dd>@Model.Customer.Email</dd>
+                </dl>
+                <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CustomerId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Customer</a>
+            }
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2 class="section-title">Reservation</h2>
+        <div class="card-barbershop">
+            @if (Model.Reservation != null)
+            {
+                <dl class="detail-list">
+                    <dt>Reservation</dt>
+                    <dd>#@Model.ReservationId — @Model.Reservation.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</dd>
+                    <dt>Service</dt>
+                    <dd>@Model.Reservation.Service?.Name</dd>
+                    <dt>Status</dt>
+                    <dd>
+                        @{
+                            var statusClass = Model.Reservation.Status switch
+                            {
+                                ReservationStatus.Pending => "badge-status-pending",
+                                ReservationStatus.Confirmed => "badge-status-confirmed",
+                                ReservationStatus.Completed => "badge-status-completed",
+                                ReservationStatus.Cancelled => "badge-status-cancelled",
+                                ReservationStatus.NoShow => "badge-status-noshow",
+                                _ => "badge-brass"
+                            };
+                        }
+                        <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@Model.Reservation.Status</span>
+                    </dd>
+                </dl>
+                <a asp-controller="Reservations" asp-action="Details" asp-route-id="@Model.ReservationId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Reservation</a>
+            }
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+{
+    <a href="@returnUrl" class="back-link">← Back</a>
+}
+else
+{
+    <a asp-controller="Reviews" asp-action="Index" class="back-link">← Back to Reviews</a>
+}

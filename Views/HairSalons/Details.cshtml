@@ -1,0 +1,191 @@
+@model manage_my_hairsaloon.Models.HairSalon
+@{
+    ViewData["Title"] = Model.Name;
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
+    var salonReservations = Model.Staff?.SelectMany(s => s.Reservations ?? Enumerable.Empty<manage_my_hairsaloon.Models.Reservation>()).ToList()
+        ?? new List<manage_my_hairsaloon.Models.Reservation>();
+    var salonReviews = salonReservations.SelectMany(r => r.Reviews ?? Enumerable.Empty<manage_my_hairsaloon.Models.Review>()).ToList();
+}
+
+<div class="page-header">
+    <h1>@Model.Name</h1>
+</div>
+
+<div class="card-barbershop">
+    <dl class="detail-list">
+        <dt>Address</dt>
+        <dd>@Model.Address</dd>
+
+        <dt>Phone Number</dt>
+        <dd>@Model.PhoneNumber</dd>
+
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+        <dt>Created At</dt>
+        <dd>@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</dd>
+    </dl>
+</div>
+
+@if (Model.Staff != null && Model.Staff.Any())
+{
+    <h2 class="section-title">Staff Members</h2>
+    <div class="table-responsive">
+        <table class="table-barbershop">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Specialization</th>
+                    <th>Hourly Rate</th>
+                    <th>Available</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var staff in Model.Staff)
+                {
+                    <tr>
+                        <td>@staff.User?.FirstName @staff.User?.LastName</td>
+                        <td>@staff.Specialization</td>
+                        <td>@staff.HourlyRate.ToString("C")</td>
+                        <td>
+                            @if (staff.IsAvailable)
+                            {
+                                <span class="badge-available" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge-unavailable" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Unavailable</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-controller="Staff" asp-action="Details" asp-route-id="@staff.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="divider-ornament">— ◆ —</div>
+
+@if (Model.Services != null && Model.Services.Any())
+{
+    <h2 class="section-title">Services</h2>
+    <div class="table-responsive">
+        <table class="table-barbershop">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Duration</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var service in Model.Services)
+                {
+                    <tr>
+                        <td>@service.Name</td>
+                        <td><span class="badge-brass">@service.Category</span></td>
+                        <td>@service.Price.ToString("C")</td>
+                        <td>@service.DurationMinutes min</td>
+                        <td>
+                            <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="divider-ornament">— ◆ —</div>
+
+@if (salonReservations.Any())
+{
+    <h2 class="section-title">Reservations</h2>
+    <div class="table-responsive">
+        <table class="table-barbershop">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Staff</th>
+                    <th>Service</th>
+                    <th>Date &amp; Time</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var res in salonReservations.OrderBy(r => r.ReservationDateTime))
+                {
+                    <tr>
+                        <td>@res.Customer?.FirstName @res.Customer?.LastName</td>
+                        <td>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</td>
+                        <td>@res.Service?.Name</td>
+                        <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>
+                            @{
+                                var statusClass = res.Status switch
+                                {
+                                    ReservationStatus.Pending => "badge-status-pending",
+                                    ReservationStatus.Confirmed => "badge-status-confirmed",
+                                    ReservationStatus.Completed => "badge-status-completed",
+                                    ReservationStatus.Cancelled => "badge-status-cancelled",
+                                    ReservationStatus.NoShow => "badge-status-noshow",
+                                    _ => "badge-brass"
+                                };
+                            }
+                            <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
+                        </td>
+                        <td>
+                            <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="divider-ornament">— ◆ —</div>
+
+@if (salonReviews.Any())
+{
+    <h2 class="section-title">Reviews</h2>
+    @foreach (var review in salonReviews)
+    {
+        <div class="card-barbershop">
+            <dl class="detail-list">
+                <dt>Rating</dt>
+                <dd>
+                    <span class="rating-stars">
+                        @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
+                    </span>
+                    <span style="margin-left:0.5rem; color:var(--clr-sand); font-size:0.85rem;">(@review.Rating/5)</span>
+                </dd>
+                <dt>Comment</dt>
+                <dd>@review.Comment</dd>
+                <dt>By</dt>
+                <dd>@review.Customer?.FirstName @review.Customer?.LastName</dd>
+                <dt>Service</dt>
+                <dd>@review.Reservation?.Service?.Name</dd>
+                <dt>Date</dt>
+                <dd>@review.CreatedAt.ToString("dd MMM yyyy")</dd>
+            </dl>
+            <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Full Review</a>
+        </div>
+    }
+}
+
+@if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+{
+    <a href="@returnUrl" class="back-link">← Back</a>
+}
+else
+{
+    <a asp-controller="HairSalons" asp-action="Index" class="back-link">← Back to Hair Salons</a>
+}

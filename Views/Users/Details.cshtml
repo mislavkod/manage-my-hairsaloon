@@ -1,0 +1,77 @@
+@model manage_my_hairsaloon.Models.User
+@{
+    ViewData["Title"] = $"{Model.FirstName} {Model.LastName}";
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
+}
+
+<div class="page-header">
+    <h1>@Model.FirstName @Model.LastName</h1>
+</div>
+
+<div class="card-barbershop">
+    <dl class="detail-list">
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+
+        <dt>Phone Number</dt>
+        <dd>@Model.PhoneNumber</dd>
+
+        <dt>Role</dt>
+        <dd><span class="badge-brass">@Model.Role</span></dd>
+
+        <dt>Created At</dt>
+        <dd>@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</dd>
+    </dl>
+</div>
+
+@if (Model.CustomerReservations != null && Model.CustomerReservations.Any())
+{
+    <h2 class="section-title">Reservations</h2>
+    <div class="table-responsive">
+        <table class="table-barbershop">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Date &amp; Time</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var res in Model.CustomerReservations)
+                {
+                    <tr>
+                        <td>@res.Service?.Name</td>
+                        <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>
+                            @{
+                                var statusClass = res.Status switch
+                                {
+                                    ReservationStatus.Pending => "badge-status-pending",
+                                    ReservationStatus.Confirmed => "badge-status-confirmed",
+                                    ReservationStatus.Completed => "badge-status-completed",
+                                    ReservationStatus.Cancelled => "badge-status-cancelled",
+                                    ReservationStatus.NoShow => "badge-status-noshow",
+                                    _ => "badge-brass"
+                                };
+                            }
+                            <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
+                        </td>
+                        <td>
+                            <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+{
+    <a href="@returnUrl" class="back-link">← Back</a>
+}
+else
+{
+    <a asp-controller="Users" asp-action="Index" class="back-link">← Back to Users</a>
+}

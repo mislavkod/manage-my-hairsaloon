@@ -6,10 +6,10 @@ namespace manage_my_hairsaloon.Models
         public int ReservationId { get; set; }
         public int CustomerId { get; set; }
         public int Rating { get; set; }
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public Reservation Reservation { get; set; }
-        public User Customer { get; set; }
+        public Reservation? Reservation { get; set; }
+        public User? Customer { get; set; }
     }
 }

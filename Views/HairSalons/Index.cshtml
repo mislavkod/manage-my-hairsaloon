@@ -1,0 +1,38 @@
+@model List<manage_my_hairsaloon.Models.HairSalon>
+@{
+    ViewData["Title"] = "Hair Salons";
+}
+
+<div class="page-header">
+    <h1>Hair Salons</h1>
+</div>
+
+<div class="table-responsive">
+    <table class="table-barbershop">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var salon in Model)
+            {
+                <tr>
+                    <td>@salon.Name</td>
+                    <td>@salon.Address</td>
+                    <td>@salon.PhoneNumber</td>
+                    <td>@salon.Email</td>
+                    <td>@salon.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>
+                        <a asp-controller="HairSalons" asp-action="Details" asp-route-id="@salon.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

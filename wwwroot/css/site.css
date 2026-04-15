@@ -1,22 +1,461 @@
+/* ============================================
+   60s/70s High-End Barbershop — Global Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Raleway:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --clr-mahogany: #4E1A0E;
+    --clr-oak: #7B4F2E;
+    --clr-brass: #C9A84C;
+    --clr-amber: #D97B2B;
+    --clr-cream: #F5ECD7;
+    --clr-sand: #B89A6A;
+    --clr-walnut: #1C0F09;
+    --font-heading: 'Playfair Display', 'Libre Baskerville', Georgia, serif;
+    --font-body: 'Raleway', 'Josefin Sans', 'Lato', sans-serif;
+}
+
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html { font-size: 16px; }
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: var(--clr-walnut);
+    color: var(--clr-cream);
+    min-height: 100vh;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='400' fill='none' stroke='%23C9A84C' stroke-linecap='round' stroke-linejoin='round' opacity='0.045'%3E%3Cg stroke-width='2.5'%3E%3Ccircle cx='58' cy='82' r='10'/%3E%3Ccircle cx='82' cy='82' r='10'/%3E%3Cline x1='64' y1='74' x2='88' y2='40'/%3E%3Cline x1='76' y1='74' x2='52' y2='40'/%3E%3C/g%3E%3Cg stroke-width='2'%3E%3Crect x='250' y='55' width='60' height='12' rx='2'/%3E%3Cline x1='256' y1='55' x2='256' y2='40'/%3E%3Cline x1='264' y1='55' x2='264' y2='40'/%3E%3Cline x1='272' y1='55' x2='272' y2='40'/%3E%3Cline x1='280' y1='55' x2='280' y2='40'/%3E%3Cline x1='288' y1='55' x2='288' y2='40'/%3E%3Cline x1='296' y1='55' x2='296' y2='40'/%3E%3Cline x1='304' y1='55' x2='304' y2='40'/%3E%3C/g%3E%3Cg stroke-width='2'%3E%3Cpath d='M215,210 C220,192 240,192 250,205 C260,192 280,192 285,210 C280,218 260,215 250,220 C240,215 220,218 215,210Z'/%3E%3C/g%3E%3Cg stroke-width='2' transform='translate(80,310) rotate(-20)'%3E%3Crect x='-25' y='-7' width='32' height='14' rx='2'/%3E%3Cpath d='M7,-7 L30,-7 C40,-7 40,7 30,7 L7,7'/%3E%3C/g%3E%3Cg stroke-width='2'%3E%3Crect x='420' y='255' width='20' height='70' rx='10'/%3E%3Cline x1='420' y1='270' x2='440' y2='280'/%3E%3Cline x1='420' y1='285' x2='440' y2='295'/%3E%3Cline x1='420' y1='300' x2='440' y2='310'/%3E%3Ccircle cx='430' cy='248' r='7'/%3E%3Ccircle cx='430' cy='332' r='5'/%3E%3C/g%3E%3Cg stroke-width='2' transform='translate(370,170) rotate(40) scale(0.7)'%3E%3Ccircle cx='-12' cy='12' r='10'/%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='-6' y1='4' x2='18' y2='-28'/%3E%3Cline x1='6' y1='4' x2='-18' y2='-28'/%3E%3C/g%3E%3Cg stroke-width='1.5' transform='translate(100,195) scale(0.7)'%3E%3Cpath d='M-35,0 C-30,-18 -10,-18 0,-5 C10,-18 30,-18 35,0 C30,8 10,5 0,10 C-10,5 -30,8 -35,0Z'/%3E%3C/g%3E%3C/svg%3E"),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 40px,
+            rgba(201,168,76,0.03) 40px,
+            rgba(201,168,76,0.03) 41px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 40px,
+            rgba(201,168,76,0.03) 40px,
+            rgba(201,168,76,0.03) 41px
+        );
+}
+
+/* ---- Links ---- */
+a {
+    color: var(--clr-brass);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: var(--clr-amber);
+    text-decoration: underline;
+}
+
+/* ---- Focus States ---- */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem var(--clr-walnut), 0 0 0 0.25rem var(--clr-brass);
+}
+
+/* ============================================
+   Navbar
+   ============================================ */
+.navbar-barbershop {
+    background: linear-gradient(180deg, var(--clr-walnut) 0%, var(--clr-mahogany) 100%);
+    border-bottom: 2px solid var(--clr-brass);
+    box-shadow: 0 4px 20px rgba(201,168,76,0.15);
+    padding: 0.6rem 0;
+}
+
+.navbar-barbershop .navbar-brand {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--clr-brass) !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+}
+.navbar-barbershop .navbar-brand:hover {
+    color: var(--clr-amber) !important;
+    text-decoration: none;
+}
+
+.navbar-barbershop .nav-link {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--clr-cream) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s, border-bottom 0.2s;
+    border-bottom: 2px solid transparent;
+}
+.navbar-barbershop .nav-link:hover,
+.navbar-barbershop .nav-link.active {
+    color: var(--clr-brass) !important;
+    border-bottom: 2px solid var(--clr-brass);
+    text-decoration: none;
+}
+
+.navbar-barbershop .navbar-toggler {
+    border-color: var(--clr-brass);
+}
+.navbar-barbershop .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23C9A84C' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ============================================
+   Content Container
+   ============================================ */
+.main-container {
+    padding-bottom: 80px;
+}
+
+/* ============================================
+   Page Headers — Ornamental
+   ============================================ */
+.page-header {
+    text-align: center;
+    margin: 2rem 0 2.5rem;
+    position: relative;
+}
+.page-header h1 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 2.4rem;
+    color: var(--clr-cream);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0;
+}
+.page-header::before,
+.page-header::after {
+    content: '◆';
+    display: block;
+    color: var(--clr-brass);
+    font-size: 0.7rem;
+    letter-spacing: 0.6em;
+}
+.page-header::before {
+    margin-bottom: 0.5rem;
+    content: '— ◆ —';
+}
+.page-header::after {
+    margin-top: 0.5rem;
+    content: '— ◆ —';
+}
+
+/* ============================================
+   Section Title (smaller headings)
+   ============================================ */
+.section-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--clr-brass);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border-bottom: 1px solid var(--clr-brass);
+    padding-bottom: 0.4rem;
+    margin: 1.5rem 0 1rem;
+}
+
+/* ============================================
+   Cards — Leather Texture Panels
+   ============================================ */
+.card-barbershop {
+    background: linear-gradient(145deg, var(--clr-mahogany), #3a130a);
+    border: 1px solid var(--clr-brass);
+    border-radius: 4px;
+    box-shadow:
+        0 2px 12px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(201,168,76,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+.card-barbershop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background-image:
+        url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='6' height='6' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+.table-barbershop {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(78,26,14,0.6);
+    border: 1px solid var(--clr-brass);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.table-barbershop thead th {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--clr-walnut);
+    background: linear-gradient(180deg, var(--clr-brass), #a88a3a);
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--clr-walnut);
+    white-space: nowrap;
+}
+
+.table-barbershop tbody td {
+    font-size: 0.9rem;
+    color: var(--clr-cream);
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    vertical-align: middle;
+}
+
+.table-barbershop tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-barbershop tbody tr:hover {
+    background: rgba(201,168,76,0.08);
+}
+
+.table-barbershop tbody tr:nth-child(even) {
+    background: rgba(28,15,9,0.3);
+}
+.table-barbershop tbody tr:nth-child(even):hover {
+    background: rgba(201,168,76,0.1);
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.btn-brass {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--clr-walnut);
+    background: linear-gradient(180deg, var(--clr-brass), #a88a3a);
+    border: 1px solid var(--clr-brass);
+    padding: 0.45rem 1.2rem;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+.btn-brass:hover {
+    background: linear-gradient(180deg, var(--clr-amber), var(--clr-brass));
+    color: var(--clr-walnut);
+    box-shadow: 0 2px 10px rgba(201,168,76,0.3);
+}
+
+.btn-outline-brass {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--clr-brass);
+    background: transparent;
+    border: 1px solid var(--clr-brass);
+    padding: 0.45rem 1.2rem;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+.btn-outline-brass:hover {
+    background: var(--clr-brass);
+    color: var(--clr-walnut);
+}
+
+/* ============================================
+   Dashboard Stat Cards
+   ============================================ */
+.stat-card {
+    background: linear-gradient(145deg, var(--clr-mahogany), #3a130a);
+    border: 1px solid var(--clr-brass);
+    border-radius: 4px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(201,168,76,0.2);
+}
+.stat-card .stat-icon {
+    font-size: 2rem;
+    color: var(--clr-brass);
+    margin-bottom: 0.5rem;
+}
+.stat-card .stat-number {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--clr-cream);
+    line-height: 1;
+}
+.stat-card .stat-label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--clr-sand);
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   Detail Property List
+   ============================================ */
+.detail-list dt {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--clr-sand);
+    margin-bottom: 0.15rem;
+}
+.detail-list dd {
+    font-size: 1rem;
+    color: var(--clr-cream);
+    margin-bottom: 1rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+
+/* ============================================
+   Badges
+   ============================================ */
+.badge-brass {
+    background: var(--clr-brass);
+    color: var(--clr-walnut);
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.3em 0.7em;
+    border-radius: 2px;
+}
+.badge-available {
+    background: #2e7d32;
+    color: #fff;
+}
+.badge-unavailable {
+    background: #8b2020;
+    color: #fff;
+}
+.badge-status-pending {
+    background: var(--clr-amber);
+    color: var(--clr-walnut);
+}
+.badge-status-confirmed {
+    background: #2e7d32;
+    color: #fff;
+}
+.badge-status-completed {
+    background: var(--clr-brass);
+    color: var(--clr-walnut);
+}
+.badge-status-cancelled {
+    background: #8b2020;
+    color: #fff;
+}
+.badge-status-noshow {
+    background: #5d4037;
+    color: var(--clr-cream);
+}
+
+/* ============================================
+   Rating Stars
+   ============================================ */
+.rating-stars {
+    color: var(--clr-brass);
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+}
+
+/* ============================================
+   Ornamental Divider
+   ============================================ */
+.divider-ornament {
+    text-align: center;
+    color: var(--clr-brass);
+    font-size: 0.8rem;
+    letter-spacing: 0.4em;
+    margin: 2rem 0;
+    opacity: 0.6;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.footer-barbershop {
+    background: var(--clr-walnut);
+    border-top: 2px solid var(--clr-brass);
+    padding: 1.2rem 0;
+    color: var(--clr-sand);
+    font-size: 0.82rem;
+    text-align: center;
+    letter-spacing: 0.08em;
+}
+.footer-barbershop a {
+    color: var(--clr-brass);
+}
+
+/* ============================================
+   Back Link
+   ============================================ */
+.back-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--clr-brass);
+    border: 1px solid var(--clr-brass);
+    padding: 0.4rem 1rem;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+.back-link:hover {
+    background: var(--clr-brass);
+    color: var(--clr-walnut);
+    text-decoration: none;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 1.6rem;
+    }
+    .table-barbershop {
+        font-size: 0.82rem;
+    }
+    .table-barbershop thead th,
+    .table-barbershop tbody td {
+        padding: 0.5rem 0.6rem;
+    }
 }

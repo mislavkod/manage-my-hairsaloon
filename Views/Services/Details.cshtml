@@ -1,0 +1,87 @@
+@model manage_my_hairsaloon.Models.Service
+@{
+    ViewData["Title"] = Model.Name;
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
+}
+
+<div class="page-header">
+    <h1>@Model.Name</h1>
+</div>
+
+<div class="card-barbershop">
+    <dl class="detail-list">
+        <dt>Description</dt>
+        <dd>@Model.Description</dd>
+
+        <dt>Price</dt>
+        <dd>@Model.Price.ToString("C")</dd>
+
+        <dt>Duration</dt>
+        <dd>@Model.DurationMinutes minutes</dd>
+
+        <dt>Category</dt>
+        <dd><span class="badge-brass">@Model.Category</span></dd>
+
+        <dt>Salon</dt>
+        <dd>
+            @if (Model.HairSalon != null)
+            {
+                <a asp-controller="HairSalons" asp-action="Details" asp-route-id="@Model.HairSalonId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString">@Model.HairSalon.Name</a>
+            }
+        </dd>
+    </dl>
+</div>
+
+@if (Model.Reservations != null && Model.Reservations.Any())
+{
+    <h2 class="section-title">Reservations</h2>
+    <div class="table-responsive">
+        <table class="table-barbershop">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Staff</th>
+                    <th>Date &amp; Time</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var res in Model.Reservations)
+                {
+                    <tr>
+                        <td>@res.Customer?.FirstName @res.Customer?.LastName</td>
+                        <td>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</td>
+                        <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>
+                            @{
+                                var statusClass = res.Status switch
+                                {
+                                    ReservationStatus.Pending => "badge-status-pending",
+                                    ReservationStatus.Confirmed => "badge-status-confirmed",
+                                    ReservationStatus.Completed => "badge-status-completed",
+                                    ReservationStatus.Cancelled => "badge-status-cancelled",
+                                    ReservationStatus.NoShow => "badge-status-noshow",
+                                    _ => "badge-brass"
+                                };
+                            }
+                            <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
+                        </td>
+                        <td>
+                            <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+{
+    <a href="@returnUrl" class="back-link">← Back</a>
+}
+else
+{
+    <a asp-controller="Services" asp-action="Index" class="back-link">← Back to Services</a>
+}

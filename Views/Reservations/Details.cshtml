@@ -1,0 +1,124 @@
+@model manage_my_hairsaloon.Models.Reservation
+@{
+    ViewData["Title"] = $"Reservation #{Model.Id}";
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
+}
+
+<div class="page-header">
+    <h1>Reservation #@Model.Id</h1>
+</div>
+
+<div class="card-barbershop">
+    <dl class="detail-list">
+        <dt>Date &amp; Time</dt>
+        <dd>@Model.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</dd>
+
+        <dt>Status</dt>
+        <dd>
+            @{
+                var statusClass = Model.Status switch
+                {
+                    ReservationStatus.Pending => "badge-status-pending",
+                    ReservationStatus.Confirmed => "badge-status-confirmed",
+                    ReservationStatus.Completed => "badge-status-completed",
+                    ReservationStatus.Cancelled => "badge-status-cancelled",
+                    ReservationStatus.NoShow => "badge-status-noshow",
+                    _ => "badge-brass"
+                };
+            }
+            <span class="@statusClass" style="padding:0.3em 0.7em; border-radius:2px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@Model.Status</span>
+        </dd>
+
+        <dt>Notes</dt>
+        <dd>@(string.IsNullOrEmpty(Model.Notes) ? "—" : Model.Notes)</dd>
+
+        <dt>Created At</dt>
+        <dd>@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</dd>
+    </dl>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <h2 class="section-title">Customer</h2>
+        <div class="card-barbershop">
+            @if (Model.Customer != null)
+            {
+                <dl class="detail-list">
+                    <dt>Name</dt>
+                    <dd>@Model.Customer.FirstName @Model.Customer.LastName</dd>
+                    <dt>Email</dt>
+                    <dd>@Model.Customer.Email</dd>
+                </dl>
+                <a asp-controller="Users" asp-action="Details" asp-route-id="@Model.CustomerId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Customer</a>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h2 class="section-title">Staff</h2>
+        <div class="card-barbershop">
+            @if (Model.Staff != null)
+            {
+                <dl class="detail-list">
+                    <dt>Name</dt>
+                    <dd>@Model.Staff.User?.FirstName @Model.Staff.User?.LastName</dd>
+                    <dt>Specialization</dt>
+                    <dd>@Model.Staff.Specialization</dd>
+                </dl>
+                <a asp-controller="Staff" asp-action="Details" asp-route-id="@Model.StaffId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Staff</a>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h2 class="section-title">Service</h2>
+        <div class="card-barbershop">
+            @if (Model.Service != null)
+            {
+                <dl class="detail-list">
+                    <dt>Service</dt>
+                    <dd>@Model.Service.Name</dd>
+                    <dt>Price</dt>
+                    <dd>@Model.Service.Price.ToString("C")</dd>
+                    <dt>Duration</dt>
+                    <dd>@Model.Service.DurationMinutes min</dd>
+                </dl>
+                <a asp-controller="Services" asp-action="Details" asp-route-id="@Model.ServiceId" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Service</a>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.Reviews != null && Model.Reviews.Any())
+{
+    <div class="divider-ornament">— ◆ —</div>
+    <h2 class="section-title">Reviews</h2>
+    @foreach (var review in Model.Reviews)
+    {
+        <div class="card-barbershop">
+            <dl class="detail-list">
+                <dt>Rating</dt>
+                <dd>
+                    <span class="rating-stars">
+                        @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
+                    </span>
+                    <span style="margin-left:0.5rem; color:var(--clr-sand); font-size:0.85rem;">(@review.Rating/5)</span>
+                </dd>
+                <dt>Comment</dt>
+                <dd>@review.Comment</dd>
+                <dt>By</dt>
+                <dd>@review.Customer?.FirstName @review.Customer?.LastName</dd>
+                <dt>Date</dt>
+                <dd>@review.CreatedAt.ToString("dd MMM yyyy")</dd>
+            </dl>
+            <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path@Context.Request.QueryString" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Full Review</a>
+        </div>
+    }
+}
+
+@if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+{
+    <a href="@returnUrl" class="back-link">← Back</a>
+}
+else
+{
+    <a asp-controller="Reservations" asp-action="Index" class="back-link">← Back to Reservations</a>
+}
