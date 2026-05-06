@@ -285,6 +285,40 @@ a:hover {
     color: var(--clr-walnut);
 }
 
+.input-barbershop {
+    background: var(--clr-mahogany);
+    border: 1px solid var(--clr-brass);
+    border-radius: 3px;
+    color: var(--clr-cream);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+.input-barbershop:focus {
+    border-color: var(--clr-amber);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.25);
+}
+.input-barbershop::placeholder {
+    color: var(--clr-sand);
+}
+
+select.input-barbershop {
+    appearance: auto;
+    color-scheme: dark;
+}
+
+textarea.input-barbershop {
+    resize: vertical;
+    min-height: 90px;
+}
+
+input[type="date"].input-barbershop {
+    color-scheme: dark;
+}
+
 /* ============================================
    Dashboard Stat Cards
    ============================================ */

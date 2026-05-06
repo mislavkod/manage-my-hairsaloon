@@ -27,9 +27,16 @@
     </dl>
 </div>
 
+<div style="margin-bottom:1.5rem;">
+    <a href="/salons/@Model.Id/NewReservations" class="btn-outline-brass">Make a Reservation</a>
+</div>
+
 @if (Model.Staff != null && Model.Staff.Any())
 {
     <h2 class="section-title">Staff Members</h2>
+    <div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <a href="/salons/@Model.Id/staff/available" class="btn-outline-brass">Available Staff Only</a>
+    </div>
     <div class="table-responsive">
         <table class="table-barbershop">
             <thead>
@@ -107,6 +114,14 @@
 @if (salonReservations.Any())
 {
     <h2 class="section-title">Reservations</h2>
+    <div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <a href="/HairSalons/Details/@Model.Id" class="btn-outline-brass">All</a>
+        <a href="/salons/@Model.Id/reservations/status/Pending" class="btn-outline-brass">Pending</a>
+        <a href="/salons/@Model.Id/reservations/status/Confirmed" class="btn-outline-brass">Confirmed</a>
+        <a href="/salons/@Model.Id/reservations/status/Completed" class="btn-outline-brass">Completed</a>
+        <a href="/salons/@Model.Id/reservations/status/Cancelled" class="btn-outline-brass">Cancelled</a>
+        <a href="/salons/@Model.Id/reservations/status/NoShow" class="btn-outline-brass">NoShow</a>
+    </div>
     <div class="table-responsive">
         <table class="table-barbershop">
             <thead>

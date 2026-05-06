@@ -1,0 +1,45 @@
+## Visual Studio / VS Code
+.vs/
+.vscode/
+
+## .NET build outputs
+[Bb]in/
+[Oo]bj/
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## User-specific files
+*.rsuser
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Publish / deploy
+**/publish/
+**/PublishScripts/
+
+## ASP.NET
+AppData/
+*.log
+ClientBin/
+[Ss]tyle[Cc]op.*
+[Dd]ebug*/
+[Rr]elease*/
+Generated_Code/
+
+## Secrets / connection strings
+appsettings.*.json
+!appsettings.Development.json
+secrets.json
+
+## OS
+.DS_Store
+Thumbs.db

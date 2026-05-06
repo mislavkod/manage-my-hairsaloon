@@ -7,6 +7,10 @@
     <h1>Hair Salons</h1>
 </div>
 
+<div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center;">
+    <input type="text" id="salonSearch" class="input-barbershop" placeholder="Filter by name..." oninput="filterSalons(this.value)" style="max-width:300px;" />
+</div>
+
 <div class="table-responsive">
     <table class="table-barbershop">
         <thead>
@@ -36,3 +40,15 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+<script>
+function filterSalons(query) {
+    var q = query.toLowerCase();
+    document.querySelectorAll('.table-barbershop tbody tr').forEach(function(row) {
+        var name = row.cells[0].textContent.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+}

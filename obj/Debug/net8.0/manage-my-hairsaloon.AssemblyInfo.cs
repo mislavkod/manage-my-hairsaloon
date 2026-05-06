@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ee76ed05131721a564c2bcd1468cc2930176beac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b1c3246318388ecff78c81d243aee49f7f344f8")]
 [assembly: System.Reflection.AssemblyProductAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyTitleAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

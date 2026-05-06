@@ -5,9 +5,9 @@ namespace manage_my_hairsaloon.Controllers
 {
     public class ReviewsController : Controller
     {
-        private readonly MockReviewRepository _reviewRepo;
+        private readonly IReviewRepository _reviewRepo;
 
-        public ReviewsController(MockReviewRepository reviewRepo)
+        public ReviewsController(IReviewRepository reviewRepo)
         {
             _reviewRepo = reviewRepo;
         }

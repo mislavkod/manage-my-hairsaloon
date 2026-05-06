@@ -5,9 +5,9 @@ namespace manage_my_hairsaloon.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly MockUserRepository _userRepo;
+        private readonly IUserRepository _userRepo;
 
-        public UsersController(MockUserRepository userRepo)
+        public UsersController(IUserRepository userRepo)
         {
             _userRepo = userRepo;
         }

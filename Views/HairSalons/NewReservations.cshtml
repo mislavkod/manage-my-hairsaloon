@@ -1,0 +1,146 @@
+@model manage_my_hairsaloon.ViewModels.NewReservationViewModel
+@using manage_my_hairsaloon.Models
+
+@{
+    ViewData["Title"] = $"New Reservation at {Model.Salon.Name}";
+}
+
+<div class="page-header">
+    <h1>New Reservation at @Model.Salon.Name</h1>
+</div>
+
+<div class="card-barbershop" style="margin-bottom: 2rem;">
+    <p>Select a date to see available time slots</p>
+    <form method="get" action="/salons/@Model.Salon.Id/NewReservations" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <input type="date" name="date" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="input-barbershop" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+        <button type="submit" class="btn-outline-brass">Check Availability</button>
+    </form>
+</div>
+
+@if (Model.SelectedDate.HasValue)
+{
+    if (Model.AvailableHours != null && Model.AvailableHours.Any())
+    {
+        <div class="card-barbershop">
+            <form method="post" action="/salons/@Model.Salon.Id/NewReservations">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="SelectedDate" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger" style="color: #D97B2B; margin-bottom: 1rem;"></div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Available Time Slots</h2>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        @foreach (var hour in Model.AvailableHours)
+                        {
+                            <label class="slot-pill">
+                                <input type="radio" name="SelectedHour" value="@hour" style="display: none;" @(Model.SelectedHour == hour ? "checked" : "") required />
+                                @(hour.ToString("D2")):00
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="SelectedHour" class="text-danger" style="color: #D97B2B;"></span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Service</h2>
+                    <select asp-for="ServiceId" class="input-barbershop" style="width: 100%;" required>
+                        <option value="">-- Select a Service --</option>
+                        @if (Model.Services != null)
+                        {
+                            foreach (var s in Model.Services)
+                            {
+                                <option value="@s.Id">@s.Name &mdash; $@s.Price.ToString("0.00") (@s.DurationMinutes min)</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger" style="color: #D97B2B;"></span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Staff Member</h2>
+                    <select asp-for="StaffId" class="input-barbershop" style="width: 100%;" required>
+                        <option value="">-- Select Staff --</option>
+                        @if (Model.AvailableStaff != null)
+                        {
+                            foreach (var staff in Model.AvailableStaff)
+                            {
+                                <option value="@staff.Id">@staff.User?.FirstName @staff.User?.LastName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="StaffId" class="text-danger" style="color: #D97B2B;"></span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Customer</h2>
+                    <select asp-for="CustomerId" class="input-barbershop" style="width: 100%;" required>
+                        <option value="">-- Select Customer --</option>
+                        @if (Model.Customers != null)
+                        {
+                            foreach (var c in Model.Customers)
+                            {
+                                <option value="@c.Id">@c.FirstName @c.LastName</option>
+                            }
+                        }
+                    </select>
+                    <p style="font-size: 0.85em; font-style: italic; color: var(--color-warm-sand, #B89A6A); margin-top: 0.25rem;">This will be auto-filled once login is added.</p>
+                    <span asp-validation-for="CustomerId" class="text-danger" style="color: #D97B2B;"></span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <h2 class="section-title">Notes</h2>
+                    <textarea asp-for="Notes" class="input-barbershop" style="width: 100%; min-height: 100px;"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger" style="color: #D97B2B;"></span>
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 2rem;">
+                    <button type="submit" class="btn-outline-brass">Book Reservation</button>
+                    <a href="/HairSalons/Details/@Model.Salon.Id" class="back-link">Back to Salon</a>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="card-barbershop">
+            <p>No available time slots for this date. Please choose another day.</p>
+        </div>
+    }
+}
+
+<div class="divider-ornament" style="margin: 2rem 0;"></div>
+<div>
+    <a href="/HairSalons/Details/@Model.Salon.Id" class="back-link">&larr; Back to Salon Details</a>
+</div>
+
+<style>
+    label.slot-pill {
+        /* pill shape */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 5rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--clr-brass);
+        border-radius: 3px;
+        background: transparent;
+        color: var(--clr-brass);
+        font-family: var(--font-body);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        user-select: none;
+    }
+    label.slot-pill:hover {
+        background: rgba(201, 168, 76, 0.12);
+    }
+    label.slot-pill:has(input:checked) {
+        background: var(--clr-brass);
+        color: var(--clr-walnut);
+        box-shadow: 0 2px 8px rgba(201,168,76,0.35);
+    }
+</style>
