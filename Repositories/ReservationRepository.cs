@@ -16,6 +16,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetAll()
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Staff)
                 .Include(r => r.Service)
@@ -25,6 +26,7 @@ namespace manage_my_hairsaloon.Repositories
         public Reservation? GetById(int id)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Staff)
                 .Include(r => r.Service)
@@ -35,6 +37,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetByCustomerId(int customerId)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Staff)
                 .Include(r => r.Service)
                 .Where(r => r.CustomerId == customerId)
@@ -44,6 +47,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetByStaffId(int staffId)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Service)
                 .Where(r => r.StaffId == staffId)
@@ -53,6 +57,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetByStatus(ReservationStatus status)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Staff)
                 .Include(r => r.Service)
@@ -63,6 +68,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetByServiceId(int serviceId)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Staff)
                 .Where(r => r.ServiceId == serviceId)
@@ -72,6 +78,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetBySalonIdAndStatus(int salonId, ReservationStatus status)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Customer)
                 .Include(r => r.Staff)
                 .Include(r => r.Service)
@@ -82,6 +89,7 @@ namespace manage_my_hairsaloon.Repositories
         public List<Reservation> GetBySalonIdAndDate(int salonId, DateTime date)
         {
             return _context.Reservations
+                .Where(r => r.DeletedAt == null)
                 .Include(r => r.Staff)
                 .Where(r => r.Staff!.HairSalonId == salonId
                     && r.ReservationDateTime.Date == date.Date
@@ -89,10 +97,52 @@ namespace manage_my_hairsaloon.Repositories
                 .ToList();
         }
 
+        public List<Reservation> Filter(string? status, string? customerName, string? serviceName, DateTime? dateFrom, DateTime? dateTo)
+        {
+            var query = _context.Reservations
+                .Where(r => r.DeletedAt == null)
+                .Include(r => r.Customer)
+                .Include(r => r.Staff)
+                .Include(r => r.Service)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(status) &&
+                Enum.TryParse<ReservationStatus>(status, out var parsedStatus))
+                query = query.Where(r => r.Status == parsedStatus);
+
+            if (!string.IsNullOrWhiteSpace(customerName))
+                query = query.Where(r =>
+                    r.Customer != null &&
+                    (r.Customer.FirstName.Contains(customerName) ||
+                     r.Customer.LastName.Contains(customerName)));
+
+            if (!string.IsNullOrWhiteSpace(serviceName))
+                query = query.Where(r =>
+                    r.Service != null && r.Service.Name.Contains(serviceName));
+
+            if (dateFrom.HasValue)
+                query = query.Where(r => r.ReservationDateTime >= dateFrom.Value);
+
+            if (dateTo.HasValue)
+                query = query.Where(r => r.ReservationDateTime <= dateTo.Value);
+
+            return query.ToList();
+        }
+
         public void Add(Reservation reservation)
         {
             _context.Reservations.Add(reservation);
             _context.SaveChanges();
+        }
+
+        public void Delete(int id)
+        {
+            var reservation = _context.Reservations.Find(id);
+            if (reservation != null)
+            {
+                reservation.DeletedAt = DateTime.UtcNow;
+                _context.SaveChanges();
+            }
         }
     }
 }

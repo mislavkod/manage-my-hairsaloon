@@ -1,0 +1,73 @@
+@model manage_my_hairsaloon.Models.User
+@{
+    var salon = ViewBag.Salon as manage_my_hairsaloon.Models.HairSalon;
+    ViewData["Title"] = $"Create Staff Account — {salon?.Name}";
+}
+
+<div class="container mt-4">
+    <div class="page-header text-center mb-5">
+        <h1>Create Staff Account</h1>
+        <p class="text-muted">@salon?.Name</p>
+        <hr style="border-top: 1px solid #C9A84C; width: 50%; margin: 1rem auto;" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <p class="text-center mb-4" style="color: #D97B2B; font-style: italic;">
+                Create a new staff user account. After saving, you will be returned to the Add Staff Member form to complete the assignment.
+            </p>
+
+            <div class="card-barbershop p-4">
+                <form action="/salons/@salon?.Id/NewStaff/NewUser" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger" style="color: #D97B2B !important;"></div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">First Name</h2>
+                        <input asp-for="FirstName" class="input-barbershop w-100" />
+                        <span asp-validation-for="FirstName" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Last Name</h2>
+                        <input asp-for="LastName" class="input-barbershop w-100" />
+                        <span asp-validation-for="LastName" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Email</h2>
+                        <input asp-for="Email" type="email" class="input-barbershop w-100" />
+                        <span asp-validation-for="Email" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Phone Number</h2>
+                        <input asp-for="PhoneNumber" type="tel" class="input-barbershop w-100" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Password</h2>
+                        <input type="password" name="password" class="input-barbershop w-100"
+                               data-val="true"
+                               data-val-required="Password is required." />
+                        <span data-valmsg-for="password" data-valmsg-replace="true"
+                              class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                        <span style="color: #B89A6A; font-size: 0.85em; font-style: italic; display: block; margin-top: 0.5rem;">
+                            Passwords are not yet hashed — for internal use only.
+                        </span>
+                    </div>
+
+                    <div class="text-center" style="margin-top:2rem;">
+                        <button type="submit" class="btn btn-outline-brass px-4 py-2 w-100 mb-3" style="letter-spacing: 0.15em; text-transform: uppercase;">Create Account</button>
+                        <a href="/salons/@salon?.Id/NewStaff" class="back-link pb-1" style="border-bottom: 2px solid #C9A84C; color: #F5ECD7; text-decoration: none; padding-bottom: 2px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">← Back to Add Staff</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

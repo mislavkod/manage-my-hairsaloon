@@ -11,8 +11,14 @@
 
 <div class="card-barbershop" style="margin-bottom: 2rem;">
     <p>Select a date to see available time slots</p>
-    <form method="get" action="/salons/@Model.Salon.Id/NewReservations" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <input type="date" name="date" value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" class="input-barbershop" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+    <form method="get" action="/salons/@Model.Salon.Id/NewReservations" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+        @await Html.PartialAsync("_DatePicker", new manage_my_hairsaloon.ViewModels.DatePickerViewModel {
+            Name = "date",
+            Value = Model.SelectedDate?.ToString("yyyy-MM-dd"),
+            Min = DateTime.Today.ToString("yyyy-MM-dd"),
+            Mode = "date",
+            Required = true
+        })
         <button type="submit" class="btn-outline-brass">Check Availability</button>
     </form>
 </div>

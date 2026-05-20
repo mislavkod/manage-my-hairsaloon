@@ -1,10 +1,42 @@
 @model List<manage_my_hairsaloon.Models.Review>
 @{
     ViewData["Title"] = "Reviews";
+    var activeMin = ViewBag.ActiveMinRating as string ?? "";
 }
 
 <div class="page-header">
     <h1>Reviews</h1>
+</div>
+
+@* Min-rating filter buttons *@
+<div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center;">
+    <span class="spinner-step-label" style="margin-right:0.25rem;">Min Rating:</span>
+    <button type="button" class="btn-outline-brass @(activeMin == "" ? "active" : "")"
+            data-minrating="" onclick="setMinRating(this)">All</button>
+    <button type="button" class="btn-outline-brass @(activeMin == "1" ? "active" : "")"
+            data-minrating="1" onclick="setMinRating(this)">★ 1+</button>
+    <button type="button" class="btn-outline-brass @(activeMin == "2" ? "active" : "")"
+            data-minrating="2" onclick="setMinRating(this)">★★ 2+</button>
+    <button type="button" class="btn-outline-brass @(activeMin == "3" ? "active" : "")"
+            data-minrating="3" onclick="setMinRating(this)">★★★ 3+</button>
+    <button type="button" class="btn-outline-brass @(activeMin == "4" ? "active" : "")"
+            data-minrating="4" onclick="setMinRating(this)">★★★★ 4+</button>
+    <button type="button" class="btn-outline-brass @(activeMin == "5" ? "active" : "")"
+            data-minrating="5" onclick="setMinRating(this)">★★★★★ 5</button>
+</div>
+
+@* Text filters *@
+<div class="filter-bar" style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:flex-end;">
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterCustomerName" class="spinner-step-label">Customer</label>
+        <input type="text" id="filterCustomerName" class="input-barbershop"
+               placeholder="Filter by customer…" style="max-width:220px;" />
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterComment" class="spinner-step-label">Comment</label>
+        <input type="text" id="filterComment" class="input-barbershop"
+               placeholder="Search comments…" style="max-width:280px;" />
+    </div>
 </div>
 
 <div class="table-responsive">
@@ -18,23 +50,45 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var review in Model)
-            {
-                <tr>
-                    <td>@review.Customer?.FirstName @review.Customer?.LastName</td>
-                    <td>
-                        <span class="rating-stars">
-                            @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
-                        </span>
-                    </td>
-                    <td>@(review.Comment?.Length > 80 ? review.Comment.Substring(0, 80) + "…" : review.Comment)</td>
-                    <td>@review.CreatedAt.ToString("dd MMM yyyy")</td>
-                    <td>
-                        <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
-                    </td>
-                </tr>
-            }
+        <tbody id="reviewsTableBody">
+            @await Html.PartialAsync("_ReviewsTable", Model)
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+<script>
+    var _minRating = '@Html.Raw(activeMin)';
+    var _debounceTimer = null;
+
+    function setMinRating(btn) {
+        var val = btn.dataset.minrating;
+        _minRating = (_minRating === val) ? '' : val;
+        document.querySelectorAll('[data-minrating]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.minrating === _minRating);
+        });
+        doFetch();
+    }
+
+    function doFetch() {
+        var params = new URLSearchParams({
+            customerName: document.getElementById('filterCustomerName').value,
+            minRating: _minRating,
+            comment: document.getElementById('filterComment').value
+        });
+        fetch('/reviews/filter?' + params.toString())
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                document.getElementById('reviewsTableBody').innerHTML = html;
+            });
+    }
+
+    function debounce() {
+        clearTimeout(_debounceTimer);
+        _debounceTimer = setTimeout(doFetch, 300);
+    }
+
+    document.getElementById('filterCustomerName').addEventListener('input', debounce);
+    document.getElementById('filterComment').addEventListener('input', debounce);
+</script>
+}

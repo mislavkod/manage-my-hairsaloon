@@ -1,0 +1,35 @@
+@model List<manage_my_hairsaloon.Models.Staff>
+@if (Model.Any())
+{
+    foreach (var staff in Model)
+    {
+        <tr>
+            <td>@staff.User?.FirstName @staff.User?.LastName</td>
+            <td>@staff.Specialization</td>
+            <td>@staff.HourlyRate.ToString("C")</td>
+            <td>
+                @if (staff.IsAvailable)
+                {
+                    <span class="badge-available" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Available</span>
+                }
+                else
+                {
+                    <span class="badge-unavailable" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Unavailable</span>
+                }
+            </td>
+            <td>@staff.HairSalon?.Name</td>
+            <td>
+                <a asp-controller="Staff" asp-action="Details" asp-route-id="@staff.Id"
+                   class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="6" style="text-align:center; color:var(--clr-sand); padding:1.5rem 0;">
+            No staff members match the selected filters.
+        </td>
+    </tr>
+}

@@ -1,0 +1,39 @@
+@model List<manage_my_hairsaloon.Models.Reservation>
+@if (Model.Any())
+{
+    foreach (var res in Model)
+    {
+        var statusClass = res.Status switch
+        {
+            ReservationStatus.Pending    => "badge-status-pending",
+            ReservationStatus.Confirmed  => "badge-status-confirmed",
+            ReservationStatus.Completed  => "badge-status-completed",
+            ReservationStatus.Cancelled  => "badge-status-cancelled",
+            ReservationStatus.NoShow     => "badge-status-noshow",
+            _                            => "badge-brass"
+        };
+        <tr>
+            <td>@res.Customer?.FirstName @res.Customer?.LastName</td>
+            <td>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</td>
+            <td>@res.Service?.Name</td>
+            <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
+            <td>
+                <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
+                    @res.Status
+                </span>
+            </td>
+            <td>
+                <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id"
+                   class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="6" style="text-align:center; color:var(--clr-sand); padding:1.5rem 0;">
+            No reservations match the selected filters.
+        </td>
+    </tr>
+}

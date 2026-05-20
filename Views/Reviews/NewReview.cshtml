@@ -1,0 +1,118 @@
+@model manage_my_hairsaloon.ViewModels.NewReviewViewModel
+
+@{
+    ViewData["Title"] = "Write a Review";
+}
+
+<div class="container mt-4">
+    <div class="page-header text-center mb-5">
+        <h1>Write a Review</h1>
+        <hr style="border-top: 1px solid #C9A84C; width: 50%; margin: 1rem auto;" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <!-- Reservation Info Card -->
+            <div class="card-barbershop p-4 mb-4" style="margin-bottom: 1.5rem;">
+                <h2 class="section-title h5 mb-3" style="color: #C9A84C; border-bottom: 1px solid #4E1A0E; padding-bottom: 0.5rem;">Reservation Details</h2>
+                <div class="d-flex flex-column gap-2" style="color: #F5ECD7;">
+                    <div>
+                        <strong style="color: #B89A6A;">Service:</strong> 
+                        @Model.Reservation?.Service?.Name 
+                        <span class="badge badge-brass ms-2" style="background-color: transparent; border: 1px solid #C9A84C; color: #C9A84C; padding: 0.25em 0.5em; letter-spacing: 0.05em; font-size: 0.75em;">@Model.Reservation?.Service?.Category</span>
+                    </div>
+                    <div>
+                        <strong style="color: #B89A6A;">Staff:</strong> 
+                        @Model.Reservation?.Staff?.User?.FirstName @Model.Reservation?.Staff?.User?.LastName
+                    </div>
+                    <div>
+                        <strong style="color: #B89A6A;">Date:</strong> 
+                        @Model.Reservation?.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")
+                    </div>
+                    <div>
+                        <strong style="color: #B89A6A;">Customer:</strong> 
+                        @Model.Reservation?.Customer?.FirstName @Model.Reservation?.Customer?.LastName
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Form Card -->
+            <div class="card-barbershop p-4">
+                <form action="/reservations/@Model.ReservationId/NewReview" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger" style="color: #D97B2B !important;"></div>
+
+                    <input type="hidden" asp-for="ReservationId" />
+                    <input type="hidden" asp-for="SalonId" />
+
+                    <!-- Rating -->
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Rating</h2>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var stars = new string('★', i);
+                                <div>
+                                    <input type="radio" asp-for="Rating" value="@i" id="rating_@i" class="btn-check" />
+                                    <label class="btn slot-pill" for="rating_@i" style="padding: 0.5rem 1rem; border: 1px solid #C9A84C; color: #F5ECD7; border-radius: 50px; cursor: pointer; transition: all 0.2s ease;">
+                                        @stars
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="Rating" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Comment</h2>
+                        <textarea asp-for="Comment" class="input-barbershop" style="width:100%; min-height:120px;"></textarea>
+                        <span asp-validation-for="Comment" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <!-- Customer Dropdown (Temporary) -->
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Customer</h2>
+                        <select asp-for="CustomerId" class="input-barbershop w-100">
+                            <option value="">-- Select Customer --</option>
+                            @if (Model.Customers != null)
+                            {
+                                foreach (var c in Model.Customers)
+                                {
+                                    <option value="@c.Id">@c.FirstName @c.LastName</option>
+                                }
+                            }
+                        </select>
+                        <small style="color: #B89A6A; font-style: italic; display: block; margin-top: 0.25rem;">This will be auto-filled once login is added.</small>
+                        <span asp-validation-for="CustomerId" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="text-center" style="margin-top:2rem;">
+                        <button type="submit" class="btn btn-outline-brass px-4 py-2 w-100 mb-3" style="letter-spacing: 0.15em; text-transform: uppercase;">Submit Review</button>
+                        <a href="/HairSalons/Details/@Model.SalonId" class="back-link pb-1" style="border-bottom: 2px solid #C9A84C; color: #F5ECD7; text-decoration: none; padding-bottom: 2px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">← Back to Salon</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Provide selected style to slot-pill radio when active */
+.btn-check:checked + .slot-pill {
+    background-color: #C9A84C !important;
+    color: #1C0F09 !important;
+    box-shadow: 0 0 10px rgba(217, 123, 43, 0.4);
+}
+.btn-check:focus + .slot-pill {
+    outline: 2px solid #D97B2B;
+}
+.slot-pill:hover {
+    background-color: rgba(201, 168, 76, 0.1);
+}
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

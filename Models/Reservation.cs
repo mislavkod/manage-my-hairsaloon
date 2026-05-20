@@ -10,6 +10,7 @@ namespace manage_my_hairsaloon.Models
         public ReservationStatus Status { get; set; }
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         public User? Customer { get; set; }
         public Staff? Staff { get; set; }

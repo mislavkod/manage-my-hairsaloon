@@ -2,13 +2,23 @@
 @{
     ViewData["Title"] = Model.Name;
     var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault();
-    var salonReservations = Model.Staff?.SelectMany(s => s.Reservations ?? Enumerable.Empty<manage_my_hairsaloon.Models.Reservation>()).ToList()
+    var salonReservations = Model.Staff?.SelectMany(s => s.Reservations ?? Enumerable.Empty<manage_my_hairsaloon.Models.Reservation>())
+        .Where(r => r.Status == manage_my_hairsaloon.Models.ReservationStatus.Completed && (r.Reviews != null && r.Reviews.Any()))
+        .ToList()
         ?? new List<manage_my_hairsaloon.Models.Reservation>();
     var salonReviews = salonReservations.SelectMany(r => r.Reviews ?? Enumerable.Empty<manage_my_hairsaloon.Models.Review>()).ToList();
 }
 
 <div class="page-header">
     <h1>@Model.Name</h1>
+</div>
+
+<div style="margin-bottom:1.5rem; display:flex; gap:1rem;">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-outline-brass">Edit</a>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this salon?');">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn-outline-brass" style="border-color:#c0392b; color:#c0392b;">Delete</button>
+    </form>
 </div>
 
 <div class="card-barbershop">
@@ -29,6 +39,10 @@
 
 <div style="margin-bottom:1.5rem;">
     <a href="/salons/@Model.Id/NewReservations" class="btn-outline-brass">Make a Reservation</a>
+</div>
+
+<div style="margin-bottom:1.5rem;">
+    <a href="/salons/@Model.Id/NewStaff" class="btn-outline-brass">Add Staff Member</a>
 </div>
 
 @if (Model.Staff != null && Model.Staff.Any())
@@ -77,6 +91,10 @@
 
 <div class="divider-ornament">— ◆ —</div>
 
+<div style="margin-bottom:1.5rem;">
+    <a href="/salons/@Model.Id/NewService" class="btn-outline-brass">Add New Service</a>
+</div>
+
 @if (Model.Services != null && Model.Services.Any())
 {
     <h2 class="section-title">Services</h2>
@@ -122,78 +140,87 @@
         <a href="/salons/@Model.Id/reservations/status/Cancelled" class="btn-outline-brass">Cancelled</a>
         <a href="/salons/@Model.Id/reservations/status/NoShow" class="btn-outline-brass">NoShow</a>
     </div>
-    <div class="table-responsive">
-        <table class="table-barbershop">
-            <thead>
-                <tr>
-                    <th>Customer</th>
-                    <th>Staff</th>
-                    <th>Service</th>
-                    <th>Date &amp; Time</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var res in salonReservations.OrderBy(r => r.ReservationDateTime))
-                {
-                    <tr>
-                        <td>@res.Customer?.FirstName @res.Customer?.LastName</td>
-                        <td>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</td>
-                        <td>@res.Service?.Name</td>
-                        <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
-                        <td>
-                            @{
-                                var statusClass = res.Status switch
-                                {
-                                    ReservationStatus.Pending => "badge-status-pending",
-                                    ReservationStatus.Confirmed => "badge-status-confirmed",
-                                    ReservationStatus.Completed => "badge-status-completed",
-                                    ReservationStatus.Cancelled => "badge-status-cancelled",
-                                    ReservationStatus.NoShow => "badge-status-noshow",
-                                    _ => "badge-brass"
-                                };
-                            }
-                            <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
-                        </td>
-                        <td>
-                            <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
 
-<div class="divider-ornament">— ◆ —</div>
-
-@if (salonReviews.Any())
-{
-    <h2 class="section-title">Reviews</h2>
-    @foreach (var review in salonReviews)
+    @foreach (var res in salonReservations.OrderBy(r => r.ReservationDateTime))
     {
-        <div class="card-barbershop">
-            <dl class="detail-list">
-                <dt>Rating</dt>
-                <dd>
-                    <span class="rating-stars">
-                        @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
-                    </span>
-                    <span style="margin-left:0.5rem; color:var(--clr-sand); font-size:0.85rem;">(@review.Rating/5)</span>
-                </dd>
-                <dt>Comment</dt>
-                <dd>@review.Comment</dd>
-                <dt>By</dt>
-                <dd>@review.Customer?.FirstName @review.Customer?.LastName</dd>
-                <dt>Service</dt>
-                <dd>@review.Reservation?.Service?.Name</dd>
-                <dt>Date</dt>
-                <dd>@review.CreatedAt.ToString("dd MMM yyyy")</dd>
-            </dl>
-            <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">View Full Review</a>
+        var statusClass = res.Status switch {
+            ReservationStatus.Pending => "badge-status-pending",
+            ReservationStatus.Confirmed => "badge-status-confirmed",
+            ReservationStatus.Completed => "badge-status-completed",
+            ReservationStatus.Cancelled => "badge-status-cancelled",
+            ReservationStatus.NoShow => "badge-status-noshow",
+            _ => "badge-brass"
+        };
+
+        <div class="card-barbershop" style="margin-bottom:1.5rem;">
+
+          <!-- Header -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+            <div>
+              <span style="font-weight:700; color:var(--clr-brass);">@res.Customer?.FirstName @res.Customer?.LastName</span>
+              <span style="color:var(--clr-sand); font-size:0.85rem; margin-left:0.75rem;">@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</span>
+            </div>
+            <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
+          </div>
+
+          <!-- Service + Staff row -->
+          <div style="display:flex; gap:2rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <div>
+              <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--clr-brass); margin-bottom:0.25rem;">Service</div>
+              <div>@res.Service?.Name</div>
+              <div style="margin-top:0.25rem;"><span class="badge-brass">@res.Service?.Category</span> &nbsp; @(res.Service != null ? res.Service.Price.ToString("C") : "") &nbsp; @res.Service?.DurationMinutes min</div>
+            </div>
+            <div>
+              <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--clr-brass); margin-bottom:0.25rem;">Staff</div>
+              <div>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</div>
+              <div style="font-size:0.85rem; color:var(--clr-sand);">@res.Staff?.Specialization</div>
+            </div>
+          </div>
+
+          <!-- Reviews (inline) -->
+          @{
+            var resReviews = res.Reviews ?? new List<manage_my_hairsaloon.Models.Review>();
+          }
+          @if (resReviews.Any())
+          {
+            <div style="border-top:1px solid rgba(201,168,76,0.3); padding-top:0.75rem; margin-top:0.5rem;">
+              <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--clr-brass); margin-bottom:0.5rem;">Review</div>
+              @foreach (var review in resReviews)
+              {
+                <div style="margin-bottom:0.5rem;">
+                  <span class="rating-stars">
+                      @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
+                  </span>
+                  <span style="margin-left:0.5rem; color:var(--clr-sand); font-size:0.85rem;">(@review.Rating/5)</span>
+                  @if (!string.IsNullOrEmpty(review.Comment))
+                  {
+                    <p style="margin:0.35rem 0 0; font-size:0.9rem;">@review.Comment</p>
+                  }
+                  <div style="font-size:0.8rem; color:var(--clr-sand); margin-top:0.25rem;">
+                    — @review.Customer?.FirstName @review.Customer?.LastName &nbsp;·&nbsp; @review.CreatedAt.ToString("dd MMM yyyy")
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Write a Review button: only for Completed with no review -->
+          @if (res.Status == manage_my_hairsaloon.Models.ReservationStatus.Completed && !resReviews.Any())
+          {
+            <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(201,168,76,0.2);">
+              <a href="/reservations/@res.Id/NewReview?salonId=@Model.Id" class="btn-outline-brass" style="font-size:0.8rem; padding:0.3rem 0.9rem;">✍ Write a Review</a>
+            </div>
+          }
+
+          <!-- Details link -->
+          <div style="margin-top:0.75rem; text-align:right;">
+            <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" asp-route-returnUrl="@Context.Request.PathBase@Context.Request.Path" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+          </div>
+
         </div>
     }
+
+    <div class="divider-ornament">— ◆ —</div>
 }
 
 @if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))

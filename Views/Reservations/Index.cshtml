@@ -1,19 +1,55 @@
 @model List<manage_my_hairsaloon.Models.Reservation>
 @{
     ViewData["Title"] = "Reservations";
+    var active = ViewBag.ActiveStatus as string;
+    string[] statuses = { "Pending", "Confirmed", "Completed", "Cancelled", "NoShow" };
 }
 
 <div class="page-header">
     <h1>Reservations</h1>
 </div>
 
+@* Status filter buttons *@
 <div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-    <a href="/Reservations/Index" class="btn-outline-brass">All</a>
-    <a href="/reservations/status/Pending" class="btn-outline-brass">Pending</a>
-    <a href="/reservations/status/Confirmed" class="btn-outline-brass">Confirmed</a>
-    <a href="/reservations/status/Completed" class="btn-outline-brass">Completed</a>
-    <a href="/reservations/status/Cancelled" class="btn-outline-brass">Cancelled</a>
-    <a href="/reservations/status/NoShow" class="btn-outline-brass">NoShow</a>
+    <button type="button" class="btn-outline-brass @(active == null ? "active" : "")"
+            data-status="" onclick="setStatus(this)">All</button>
+    @foreach (var s in statuses)
+    {
+        <button type="button" class="btn-outline-brass @(active == s ? "active" : "")"
+                data-status="@s" onclick="setStatus(this)">@s</button>
+    }
+</div>
+
+@* Text & date filters *@
+<div class="filter-bar" style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:flex-end;">
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterCustomerName" class="spinner-step-label">Customer</label>
+        <input type="text" id="filterCustomerName" class="input-barbershop"
+               placeholder="Filter by customer…" style="max-width:220px;" />
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterServiceName" class="spinner-step-label">Service</label>
+        <input type="text" id="filterServiceName" class="input-barbershop"
+               placeholder="Filter by service…" style="max-width:220px;" />
+    </div>
+    <div style="min-width:220px;">
+        @await Html.PartialAsync("_DatePicker", new manage_my_hairsaloon.ViewModels.DatePickerViewModel {
+            Name = "filterDateFrom",
+            Label = "From",
+            Mode = "datetime",
+            OnCommit = "onDateFilterChange"
+        })
+    </div>
+    <div style="min-width:220px;">
+        @await Html.PartialAsync("_DatePicker", new manage_my_hairsaloon.ViewModels.DatePickerViewModel {
+            Name = "filterDateTo",
+            Label = "Until",
+            Mode = "datetime",
+            OnCommit = "onDateFilterChange"
+        })
+    </div>
+    <button type="button" id="clearDates" class="btn-outline-brass"
+            style="align-self:flex-end;">Clear dates</button>
 </div>
 
 <div class="table-responsive">
@@ -28,33 +64,63 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var res in Model)
-            {
-                <tr>
-                    <td>@res.Customer?.FirstName @res.Customer?.LastName</td>
-                    <td>@res.Staff?.User?.FirstName @res.Staff?.User?.LastName</td>
-                    <td>@res.Service?.Name</td>
-                    <td>@res.ReservationDateTime.ToString("dd MMM yyyy, HH:mm")</td>
-                    <td>
-                        @{
-                            var statusClass = res.Status switch
-                            {
-                                ReservationStatus.Pending => "badge-status-pending",
-                                ReservationStatus.Confirmed => "badge-status-confirmed",
-                                ReservationStatus.Completed => "badge-status-completed",
-                                ReservationStatus.Cancelled => "badge-status-cancelled",
-                                ReservationStatus.NoShow => "badge-status-noshow",
-                                _ => "badge-brass"
-                            };
-                        }
-                        <span class="@statusClass" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">@res.Status</span>
-                    </td>
-                    <td>
-                        <a asp-controller="Reservations" asp-action="Details" asp-route-id="@res.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
-                    </td>
-                </tr>
-            }
+        <tbody id="reservationsTableBody">
+            @await Html.PartialAsync("_ReservationsTable", Model)
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+<script>
+    var _activeStatus = '@Html.Raw(active ?? "")';
+    var _debounceTimer = null;
+
+    function setStatus(btn) {
+        var st = btn.dataset.status;
+        _activeStatus = (_activeStatus === st) ? '' : st;
+        document.querySelectorAll('[data-status]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.status === _activeStatus);
+        });
+        doFetch();
+    }
+
+    function doFetch() {
+        var params = new URLSearchParams({
+            status: _activeStatus,
+            customerName: document.getElementById('filterCustomerName').value,
+            serviceName: document.getElementById('filterServiceName').value
+        });
+        var fromVal = document.getElementById('dp-filterDateFrom-hidden').value;
+        var toVal   = document.getElementById('dp-filterDateTo-hidden').value;
+        if (fromVal) params.set('dateFrom', fromVal);
+        if (toVal)   params.set('dateTo', toVal);
+        fetch('/reservations/filter?' + params.toString())
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                document.getElementById('reservationsTableBody').innerHTML = html;
+            });
+    }
+
+    function debounce() {
+        clearTimeout(_debounceTimer);
+        _debounceTimer = setTimeout(doFetch, 300);
+    }
+
+    document.getElementById('filterCustomerName').addEventListener('input', debounce);
+    document.getElementById('filterServiceName').addEventListener('input', debounce);
+
+    // Called by both date pickers via data-dp-oncommit
+    function onDateFilterChange() { debounce(); }
+
+    document.getElementById('clearDates').addEventListener('click', function () {
+        ['filterDateFrom', 'filterDateTo'].forEach(function (name) {
+            var wrap = document.getElementById('dp-' + name);
+            if (!wrap) return;
+            wrap.querySelector('.dp-hidden').value = '';
+            wrap.querySelector('.dp-display').textContent =
+                (navigator.language || '').startsWith('hr') ? 'Odaberi datum' : 'Select a date';
+        });
+        doFetch();
+    });
+</script>
+}

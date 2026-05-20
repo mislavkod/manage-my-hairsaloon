@@ -1,0 +1,66 @@
+@model manage_my_hairsaloon.ViewModels.EditReviewViewModel
+
+@{
+    ViewData["Title"] = "Edit Review";
+}
+
+<div class="container mt-4">
+    <div class="page-header text-center mb-5">
+        <h1>Edit Review</h1>
+        <p style="color: #B89A6A; font-size: 1.1em; letter-spacing: 0.1em; text-transform: uppercase;">
+            @Model.CustomerName &mdash; @Model.CreatedAt.ToString("dd MMM yyyy")
+        </p>
+        <hr style="border-top: 1px solid #C9A84C; width: 50%; margin: 1rem auto;" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div asp-validation-summary="ModelOnly" style="background: rgba(201,168,76,0.15); border: 1px solid #C9A84C; border-radius:4px; padding:1rem; margin-bottom:1.5rem; color:#F5ECD7;"></div>
+
+            <div class="card-barbershop leather-texture p-4 p-md-5">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="OriginalRating" />
+                    <input type="hidden" asp-for="OriginalComment" />
+
+                    <!-- Rating -->
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Rating</h2>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var stars = new string('★', i);
+                                <div>
+                                    <input type="radio" asp-for="Rating" value="@i" id="rating_@i" class="btn-check" />
+                                    <label class="btn slot-pill" for="rating_@i" style="padding: 0.5rem 1rem; border: 1px solid #C9A84C; color: #F5ECD7; border-radius: 50px; cursor: pointer; transition: all 0.2s ease;">
+                                        @stars
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="Rating" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Comment</h2>
+                        <textarea asp-for="Comment" class="input-barbershop w-100" rows="4"></textarea>
+                        <span asp-validation-for="Comment" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div style="margin-top:2rem; display:flex; gap:1rem; align-items:center">
+                        <button type="submit" class="btn btn-outline-brass" style="letter-spacing: 0.15em; text-transform: uppercase;">Save Changes</button>
+                        <a href="/Reviews/Details/@Model.Id" class="back-link" style="color: #B89A6A; text-decoration: none; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.9em; padding-bottom: 2px;">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

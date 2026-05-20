@@ -3,12 +3,31 @@
     ViewData["Title"] = "Hair Salons";
 }
 
+<style>
+    @@keyframes row-shuffle-out {
+        from { transform: translateX(0);    opacity: 1; }
+        to   { transform: translateX(90px); opacity: 0; }
+    }
+    @@keyframes row-shuffle-in {
+        from { transform: translateX(-70px); opacity: 0; }
+        to   { transform: translateX(0);    opacity: 1; }
+    }
+    .shuffle-out {
+        animation: row-shuffle-out 190ms var(--shuf-delay, 0ms) ease-in both;
+    }
+    .shuffle-in {
+        animation: row-shuffle-in 330ms var(--shuf-delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+</style>
+
 <div class="page-header">
     <h1>Hair Salons</h1>
 </div>
 
 <div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center;">
     <input type="text" id="salonSearch" class="input-barbershop" placeholder="Filter by name..." oninput="filterSalons(this.value)" style="max-width:300px;" />
+    <button type="button" id="shuffleBtn" class="btn-outline-brass" onclick="shuffleSalons()" title="Shuffle rows">⇌ Shuffle</button>
+    <a asp-action="Create" class="btn-outline-brass">Create New Salon</a>
 </div>
 
 <div class="table-responsive">
@@ -23,7 +42,7 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="salonsTableBody">
             @foreach (var salon in Model)
             {
                 <tr>
@@ -45,10 +64,67 @@
 <script>
 function filterSalons(query) {
     var q = query.toLowerCase();
-    document.querySelectorAll('.table-barbershop tbody tr').forEach(function(row) {
+    document.querySelectorAll('#salonsTableBody tr').forEach(function(row) {
         var name = row.cells[0].textContent.toLowerCase();
         row.style.display = name.includes(q) ? '' : 'none';
     });
 }
+
+function shuffleSalons() {
+    var btn     = document.getElementById('shuffleBtn');
+    var tbody   = document.getElementById('salonsTableBody');
+    var all     = Array.from(tbody.rows);
+    var visible = all.filter(function(r) { return r.style.display !== 'none'; });
+    if (visible.length < 2) return;
+
+    btn.disabled = true;
+
+    var STAGGER_OUT = 40;   // ms between rows flying out
+    var STAGGER_IN  = 55;   // ms between rows flying in
+    var OUT_ANIM    = 190;  // out animation duration
+    var IN_ANIM     = 330;  // in animation duration
+
+    // Phase 1 — rows slide out to the right, staggered
+    visible.forEach(function(r, i) {
+        r.style.setProperty('--shuf-delay', (i * STAGGER_OUT) + 'ms');
+        r.classList.add('shuffle-out');
+    });
+
+    setTimeout(function() {
+        // Fisher-Yates shuffle
+        var order = visible.slice();
+        for (var i = order.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var t = order[i]; order[i] = order[j]; order[j] = t;
+        }
+
+        // Rebuild tbody with shuffled visible rows, hidden rows at end
+        all.forEach(function(r) { tbody.removeChild(r); });
+        order.forEach(function(r) {
+            r.classList.remove('shuffle-out');
+            tbody.appendChild(r);
+        });
+        all.filter(function(r) { return r.style.display === 'none'; }).forEach(function(r) {
+            tbody.appendChild(r);
+        });
+
+        // Phase 2 — rows slide in from the left, staggered
+        order.forEach(function(r, i) {
+            r.style.setProperty('--shuf-delay', (i * STAGGER_IN) + 'ms');
+            r.classList.add('shuffle-in');
+        });
+
+        // Clean up after in-animation completes
+        setTimeout(function() {
+            order.forEach(function(r) {
+                r.classList.remove('shuffle-in');
+                r.style.removeProperty('--shuf-delay');
+            });
+            btn.disabled = false;
+        }, IN_ANIM + order.length * STAGGER_IN);
+
+    }, OUT_ANIM + visible.length * STAGGER_OUT);
+}
 </script>
 }
+

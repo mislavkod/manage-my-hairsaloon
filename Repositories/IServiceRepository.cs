@@ -9,5 +9,10 @@ namespace manage_my_hairsaloon.Repositories
         List<Service> GetBySalonId(int salonId);
         List<Service> GetByCategory(ServiceCategory category);
         List<Service> GetByMaxPrice(decimal maxPrice);
+        List<Service> Filter(string? category, string? serviceName, string? salonName, decimal? maxPrice);
+        decimal GetMaxPrice();
+        void Add(Service service);
+        void Update(Service service);
+        void Delete(int id);
     }
 }

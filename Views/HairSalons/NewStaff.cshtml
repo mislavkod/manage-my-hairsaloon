@@ -1,0 +1,71 @@
+@model manage_my_hairsaloon.Models.Staff
+@{
+    var salon = ViewBag.Salon as manage_my_hairsaloon.Models.HairSalon;
+    var users = ViewBag.Users as List<manage_my_hairsaloon.Models.User>;
+    ViewData["Title"] = $"Add Staff — {salon?.Name}";
+}
+
+<div class="container mt-4">
+    <div class="page-header text-center mb-5">
+        <h1>Add Staff Member</h1>
+        <p class="text-muted">@salon?.Name</p>
+        <hr style="border-top: 1px solid #C9A84C; width: 50%; margin: 1rem auto;" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card-barbershop p-4">
+                <form action="/salons/@salon?.Id/NewStaff" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger" style="color: #D97B2B !important;"></div>
+                    
+                    <input type="hidden" asp-for="HairSalonId" value="@salon?.Id" />
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">User</h2>
+                        <select asp-for="UserId" class="input-barbershop w-100">
+                            <option value="">-- Select User --</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    <option value="@u.Id">@u.FirstName @u.LastName (@u.Email)</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="UserId" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                        <div style="margin-top:0.5rem;">
+                            <a href="/salons/@salon?.Id/NewStaff/NewUser" class="back-link" style="font-size:0.85rem;">+ Create new user account</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Specialization</h2>
+                        <input asp-for="Specialization" class="input-barbershop w-100" />
+                        <span asp-validation-for="Specialization" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Hourly Rate</h2>
+                        <input asp-for="HourlyRate" type="number" step="0.01" min="0" class="input-barbershop w-100" />
+                        <span asp-validation-for="HourlyRate" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group d-flex align-items-center gap-2" style="margin-bottom:1.5rem; color: #F5ECD7;">
+                        <input asp-for="IsAvailable" type="checkbox" style="accent-color: #C9A84C; width: 1.2rem; height: 1.2rem; cursor: pointer;" />
+                        <label asp-for="IsAvailable" style="cursor: pointer; font-size: 1.1em;">Available for bookings</label>
+                    </div>
+
+                    <div class="text-center" style="margin-top:2rem;">
+                        <button type="submit" class="btn btn-outline-brass px-4 py-2 w-100 mb-3" style="letter-spacing: 0.15em; text-transform: uppercase;">Add Staff Member</button>
+                        <a href="/HairSalons/Details/@salon?.Id" class="back-link pb-1" style="border-bottom: 2px solid #C9A84C; color: #F5ECD7; text-decoration: none; padding-bottom: 2px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">← Back to Salon</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

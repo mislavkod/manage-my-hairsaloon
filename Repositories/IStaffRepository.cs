@@ -10,5 +10,9 @@ namespace manage_my_hairsaloon.Repositories
         Staff? GetByUserId(int userId);
         List<Staff> GetAvailable();
         List<Staff> GetAvailableBySalonId(int salonId);
+        List<Staff> Filter(string? name, string? specialization, string? salonName, bool? available);
+        void Add(Staff staff);
+        void Update(Staff staff);
+        void Delete(int id);
     }
 }

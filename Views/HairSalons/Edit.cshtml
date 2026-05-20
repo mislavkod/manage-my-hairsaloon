@@ -1,0 +1,64 @@
+@model manage_my_hairsaloon.ViewModels.EditHairSalonViewModel
+
+@{
+    ViewData["Title"] = "Edit Hair Salon";
+}
+
+<div class="page-header">
+    <h1>Edit Hair Salon</h1>
+    <p style="color: var(--color-text-muted); font-size: 1.1em; letter-spacing: 0.1em; text-transform: uppercase;">
+        @Model.Name
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        
+        <div asp-validation-summary="ModelOnly" style="background: rgba(201,168,76,0.15); border: 1px solid #C9A84C; border-radius:4px; padding:1rem; margin-bottom:1.5rem; color:#F5ECD7;"></div>
+
+        <div class="card-barbershop leather-texture p-4 p-md-5">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="OriginalName" />
+                <input type="hidden" asp-for="OriginalAddress" />
+                <input type="hidden" asp-for="OriginalPhoneNumber" />
+                <input type="hidden" asp-for="OriginalEmail" />
+
+                <div class="form-group mb-4" style="margin-bottom: 1.5rem;">
+                    <label asp-for="Name" class="section-title h5 mb-3 d-block"></label>
+                    <input asp-for="Name" class="input-barbershop w-100" />
+                    <span asp-validation-for="Name" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+                </div>
+
+                <div class="form-group mb-4" style="margin-bottom: 1.5rem;">
+                    <label asp-for="Address" class="section-title h5 mb-3 d-block"></label>
+                    <input asp-for="Address" class="input-barbershop w-100" />
+                    <span asp-validation-for="Address" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+                </div>
+
+                <div class="form-group mb-4" style="margin-bottom: 1.5rem;">
+                    <label asp-for="PhoneNumber" class="section-title h5 mb-3 d-block"></label>
+                    <input asp-for="PhoneNumber" type="tel" class="input-barbershop w-100" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+                </div>
+
+                <div class="form-group mb-4" style="margin-bottom: 1.5rem;">
+                    <label asp-for="Email" class="section-title h5 mb-3 d-block"></label>
+                    <input asp-for="Email" type="email" class="input-barbershop w-100" />
+                    <span asp-validation-for="Email" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+                </div>
+
+                <div style="margin-top:2rem; display:flex; gap:1rem; align-items:center;">
+                    <button type="submit" class="btn-outline-brass">Save Changes</button>
+                    <a href="/HairSalons/Details/@Model.Id" class="back-link" style="color: var(--color-text-muted); text-decoration: none; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.9em;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

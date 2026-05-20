@@ -1,0 +1,65 @@
+@model manage_my_hairsaloon.ViewModels.EditServiceViewModel
+@using manage_my_hairsaloon.Models
+
+@{
+    ViewData["Title"] = "Edit Service";
+}
+
+<div class="page-header">
+    <h1>Edit Service</h1>
+    <p>@Model.SalonName</p>
+</div>
+
+<div class="card-barbershop">
+    <div asp-validation-summary="ModelOnly" style="background: rgba(201,168,76,0.15); border: 1px solid #C9A84C; border-radius:4px; padding:1rem; margin-bottom:1.5rem; color:#F5ECD7;"></div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="OriginalName" />
+        <input type="hidden" asp-for="OriginalDescription" />
+        <input type="hidden" asp-for="OriginalPrice" />
+        <input type="hidden" asp-for="OriginalDurationMinutes" />
+        <input type="hidden" asp-for="OriginalCategory" />
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="input-barbershop w-100" />
+            <span asp-validation-for="Name" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="input-barbershop w-100" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+            <label asp-for="Price"></label>
+            <input asp-for="Price" type="number" step="0.01" min="0.01" class="input-barbershop w-100" />
+            <span asp-validation-for="Price" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+            <label asp-for="DurationMinutes"></label>
+            <input asp-for="DurationMinutes" type="number" min="5" class="input-barbershop w-100" />
+            <span asp-validation-for="DurationMinutes" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+            <label asp-for="Category"></label>
+            <select asp-for="Category" asp-items="Html.GetEnumSelectList<ServiceCategory>()" class="input-barbershop w-100"></select>
+            <span asp-validation-for="Category" class="text-danger" style="color:#D97B2B !important; font-size:0.85em;"></span>
+        </div>
+
+        <div style="margin-top:2rem; display:flex; gap:1rem; align-items:center">
+            <button type="submit" class="btn-outline-brass">Save Changes</button>
+            <a href="/Services/Details/@Model.Id" class="back-link">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

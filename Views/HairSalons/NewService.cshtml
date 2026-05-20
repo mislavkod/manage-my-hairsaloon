@@ -1,0 +1,74 @@
+@model manage_my_hairsaloon.Models.Service
+@{
+    var salon = ViewBag.Salon as manage_my_hairsaloon.Models.HairSalon;
+    ViewData["Title"] = $"Add Service — {salon?.Name}";
+    var categories = ViewBag.Categories as IEnumerable<manage_my_hairsaloon.Models.ServiceCategory>;
+}
+
+<div class="container mt-4">
+    <div class="page-header text-center mb-5">
+        <h1>Add New Service</h1>
+        <p class="text-muted">@salon?.Name</p>
+        <hr style="border-top: 1px solid #C9A84C; width: 50%; margin: 1rem auto;" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card-barbershop p-4">
+                <form action="/salons/@salon?.Id/NewService" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger" style="color: #D97B2B !important;"></div>
+                    
+                    <input type="hidden" asp-for="HairSalonId" value="@salon?.Id" />
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Name</h2>
+                        <input asp-for="Name" class="input-barbershop w-100" />
+                        <span asp-validation-for="Name" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Description</h2>
+                        <textarea asp-for="Description" class="input-barbershop w-100" style="min-height:80px;"></textarea>
+                        <span asp-validation-for="Description" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Price</h2>
+                        <input asp-for="Price" type="number" step="0.01" min="0.01" class="input-barbershop w-100" />
+                        <span asp-validation-for="Price" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Duration (minutes)</h2>
+                        <input asp-for="DurationMinutes" type="number" min="5" class="input-barbershop w-100" />
+                        <span asp-validation-for="DurationMinutes" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.5rem">
+                        <h2 class="section-title h5">Category</h2>
+                        <select asp-for="Category" class="input-barbershop w-100">
+                            @if (categories != null)
+                            {
+                                foreach (var cat in categories)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger" style="color: #D97B2B !important; font-size: 0.85em;"></span>
+                    </div>
+
+                    <div class="text-center" style="margin-top:2rem;">
+                        <button type="submit" class="btn btn-outline-brass px-4 py-2 w-100 mb-3" style="letter-spacing: 0.15em; text-transform: uppercase;">Add Service</button>
+                        <a href="/HairSalons/Details/@salon?.Id" class="back-link pb-1" style="border-bottom: 2px solid #C9A84C; color: #F5ECD7; text-decoration: none; padding-bottom: 2px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem;">← Back to Salon</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

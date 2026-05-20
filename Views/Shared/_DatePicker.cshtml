@@ -1,0 +1,94 @@
+@model manage_my_hairsaloon.ViewModels.DatePickerViewModel
+@{
+    var mode = Model.Mode ?? "date";
+    var domId = "dp-" + Model.Name.Replace("[", "_").Replace("]", "_").Replace(".", "_");
+}
+
+<div class="dp-wrap"
+     id="@domId"
+     data-dp-mode="@mode"
+     data-dp-min="@(Model.Min ?? "")"
+     data-dp-max="@(Model.Max ?? "")"
+     data-dp-autosubmit="@Model.AutoSubmit.ToString().ToLower()"
+     data-dp-oncommit="@(Model.OnCommit ?? "")">
+
+    @if (!string.IsNullOrEmpty(Model.Label))
+    {
+        <label class="spinner-step-label" for="@(domId + "-trigger")">@Model.Label</label>
+    }
+
+    <button type="button"
+            class="dp-trigger input-barbershop"
+            id="@(domId + "-trigger")"
+            style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:0.6rem;">
+        <span class="dp-display" style="flex:1; text-align:left;"></span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15"
+             fill="currentColor" style="opacity:0.7; flex-shrink:0;" aria-hidden="true">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0
+                     2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5z"/>
+        </svg>
+    </button>
+
+    <input type="hidden"
+           class="dp-hidden"
+           name="@Model.Name"
+           id="@(domId + "-hidden")"
+           value="@(Model.Value ?? "")"
+           @(Model.Required ? "required" : "") />
+
+    <div class="dp-popup" id="@(domId + "-popup")" hidden>
+
+        @* Decorative barbershop header: top hat + moustache *@
+        <div class="dp-decor" aria-hidden="true">
+            <svg class="dp-hat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 58">
+                <rect x="4" y="42" width="72" height="13" rx="6"
+                      fill="#1C0F09" stroke="#C9A84C" stroke-width="2"/>
+                <rect x="21" y="7" width="38" height="37" rx="4"
+                      fill="#1C0F09" stroke="#C9A84C" stroke-width="2"/>
+                <rect x="21" y="33" width="38" height="8" fill="#C9A84C"/>
+                <rect x="23" y="34" width="34" height="2" rx="1"
+                      fill="#D97B2B" opacity="0.5"/>
+                <rect x="23" y="9" width="34" height="3" rx="2"
+                      fill="#4E1A0E" opacity="0.5"/>
+            </svg>
+
+            <svg class="dp-mustache" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 38">
+                <path d="M50,20 C44,20 36,7 22,11 C10,14 6,25 14,29
+                         C22,33 33,25 41,19 C45,16 49,18 50,20Z"
+                      fill="#1C0F09" stroke="#C9A84C" stroke-width="1.5"/>
+                <path d="M50,20 C56,20 64,7 78,11 C90,14 94,25 86,29
+                         C78,33 67,25 59,19 C55,16 51,18 50,20Z"
+                      fill="#1C0F09" stroke="#C9A84C" stroke-width="1.5"/>
+                <ellipse cx="50" cy="19" rx="3" ry="2.5" fill="#C9A84C"/>
+            </svg>
+        </div>
+
+        @* Month navigation *@
+        <div class="dp-header">
+            <button type="button" class="dp-nav dp-prev" tabindex="-1">&#8249;</button>
+            <span class="dp-month-year"></span>
+            <button type="button" class="dp-nav dp-next" tabindex="-1">&#8250;</button>
+        </div>
+
+        @* Weekday labels — populated by JS based on browser locale *@
+        <div class="dp-weekdays"></div>
+
+        @* Day grid — populated by JS *@
+        <div class="dp-days"></div>
+
+        @if (mode == "datetime")
+        {
+            @* Time picker, shown after a day is selected. spinner-step prevents num-spinner.js from wrapping these inputs. *@
+            <div class="dp-time-section" hidden>
+                <span class="dp-time-label">Time</span>
+                <input type="number" class="dp-time-input dp-hour spinner-step"
+                       min="0" max="23" value="12" />
+                <span class="dp-time-sep">:</span>
+                <input type="number" class="dp-time-input dp-min spinner-step"
+                       min="0" max="59" value="00" step="15" />
+                <button type="button" class="dp-confirm">OK</button>
+            </div>
+        }
+    </div>
+</div>
+

@@ -1,10 +1,42 @@
 @model List<manage_my_hairsaloon.Models.User>
 @{
     ViewData["Title"] = "Users";
+    var activeRole = ViewBag.ActiveRole as string ?? "";
+    string[] roles = { "Customer", "Staff", "Admin" };
 }
 
 <div class="page-header">
     <h1>Users</h1>
+</div>
+
+@* Role filter buttons *@
+<div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+    <button type="button" class="btn-outline-brass @(activeRole == "" ? "active" : "")"
+            data-role="" onclick="setRole(this)">All</button>
+    @foreach (var role in roles)
+    {
+        <button type="button" class="btn-outline-brass @(activeRole == role ? "active" : "")"
+                data-role="@role" onclick="setRole(this)">@role</button>
+    }
+</div>
+
+@* Name + date filters *@
+<div class="filter-bar" style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:flex-end;">
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterName" class="spinner-step-label">Name</label>
+        <input type="text" id="filterName" class="input-barbershop"
+               placeholder="Filter by name…" style="max-width:220px;" />
+    </div>
+    <div style="min-width:220px;">
+        @await Html.PartialAsync("_DatePicker", new manage_my_hairsaloon.ViewModels.DatePickerViewModel {
+            Name = "filterCreatedBefore",
+            Label = "Created Before",
+            Mode = "date",
+            OnCommit = "onDateFilterChange"
+        })
+    </div>
+    <button type="button" id="clearDate" class="btn-outline-brass"
+            style="align-self:flex-end;">Clear date</button>
 </div>
 
 <div class="table-responsive">
@@ -20,21 +52,57 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var user in Model)
-            {
-                <tr>
-                    <td>@user.FirstName</td>
-                    <td>@user.LastName</td>
-                    <td>@user.Email</td>
-                    <td>@user.PhoneNumber</td>
-                    <td><span class="badge-brass">@user.Role</span></td>
-                    <td>@user.CreatedAt.ToString("dd MMM yyyy")</td>
-                    <td>
-                        <a asp-controller="Users" asp-action="Details" asp-route-id="@user.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
-                    </td>
-                </tr>
-            }
+        <tbody id="usersTableBody">
+            @await Html.PartialAsync("_UsersTable", Model)
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+<script>
+    var _activeRole = '@Html.Raw(activeRole)';
+    var _debounceTimer = null;
+
+    function setRole(btn) {
+        var val = btn.dataset.role;
+        _activeRole = (_activeRole === val) ? '' : val;
+        document.querySelectorAll('[data-role]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.role === _activeRole);
+        });
+        doFetch();
+    }
+
+    function doFetch() {
+        var params = new URLSearchParams({
+            name: document.getElementById('filterName').value,
+            role: _activeRole
+        });
+        var dateVal = document.getElementById('dp-filterCreatedBefore-hidden').value;
+        if (dateVal) params.set('createdBefore', dateVal);
+        fetch('/users/filter?' + params.toString())
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                document.getElementById('usersTableBody').innerHTML = html;
+            });
+    }
+
+    function debounce() {
+        clearTimeout(_debounceTimer);
+        _debounceTimer = setTimeout(doFetch, 300);
+    }
+
+    // Called by the datepicker via data-dp-oncommit
+    function onDateFilterChange() { debounce(); }
+
+    document.getElementById('filterName').addEventListener('input', debounce);
+    document.getElementById('clearDate').addEventListener('click', function () {
+        var wrap = document.getElementById('dp-filterCreatedBefore');
+        if (wrap) {
+            wrap.querySelector('.dp-hidden').value = '';
+            wrap.querySelector('.dp-display').textContent =
+                (navigator.language || '').startsWith('hr') ? 'Odaberi datum' : 'Select a date';
+        }
+        doFetch();
+    });
+</script>
+}

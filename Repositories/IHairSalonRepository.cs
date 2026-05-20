@@ -7,5 +7,8 @@ namespace manage_my_hairsaloon.Repositories
         List<HairSalon> GetAll();
         HairSalon? GetById(int id);
         HairSalon? GetByName(string name);
+        void Add(HairSalon salon);
+        void Update(HairSalon salon);
+        void Delete(int id);
     }
 }

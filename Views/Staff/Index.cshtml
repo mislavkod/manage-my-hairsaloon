@@ -1,15 +1,40 @@
 @model List<manage_my_hairsaloon.Models.Staff>
 @{
     ViewData["Title"] = "Staff";
+    var activeAvail = ViewBag.ActiveAvailability as string ?? "";
 }
 
 <div class="page-header">
     <h1>Staff</h1>
 </div>
 
+@* Availability filter buttons *@
 <div class="filter-bar" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-    <a href="/Staff/Index" class="btn-outline-brass">All Staff</a>
-    <a href="/Staff/Available" class="btn-outline-brass">Available Only</a>
+    <button type="button" class="btn-outline-brass @(activeAvail == "" ? "active" : "")"
+            data-available="" onclick="setAvailability(this)">All</button>
+    <button type="button" class="btn-outline-brass @(activeAvail == "true" ? "active" : "")"
+            data-available="true" onclick="setAvailability(this)">Available</button>
+    <button type="button" class="btn-outline-brass @(activeAvail == "false" ? "active" : "")"
+            data-available="false" onclick="setAvailability(this)">Unavailable</button>
+</div>
+
+@* Text filters *@
+<div class="filter-bar" style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:flex-end;">
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterName" class="spinner-step-label">Name</label>
+        <input type="text" id="filterName" class="input-barbershop"
+               placeholder="Filter by name…" style="max-width:220px;" />
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterSpecialization" class="spinner-step-label">Specialization</label>
+        <input type="text" id="filterSpecialization" class="input-barbershop"
+               placeholder="Filter by specialization…" style="max-width:220px;" />
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+        <label for="filterSalonName" class="spinner-step-label">Salon</label>
+        <input type="text" id="filterSalonName" class="input-barbershop"
+               placeholder="Filter by salon…" style="max-width:220px;" />
+    </div>
 </div>
 
 <div class="table-responsive">
@@ -24,29 +49,47 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var staff in Model)
-            {
-                <tr>
-                    <td>@staff.User?.FirstName @staff.User?.LastName</td>
-                    <td>@staff.Specialization</td>
-                    <td>@staff.HourlyRate.ToString("C")</td>
-                    <td>
-                        @if (staff.IsAvailable)
-                        {
-                            <span class="badge-available" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Available</span>
-                        }
-                        else
-                        {
-                            <span class="badge-unavailable" style="padding:0.25em 0.6em; border-radius:2px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">Unavailable</span>
-                        }
-                    </td>
-                    <td>@staff.HairSalon?.Name</td>
-                    <td>
-                        <a asp-controller="Staff" asp-action="Details" asp-route-id="@staff.Id" class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
-                    </td>
-                </tr>
-            }
+        <tbody id="staffTableBody">
+            @await Html.PartialAsync("_StaffTable", Model)
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+<script>
+    var _activeAvailability = '@Html.Raw(activeAvail)';
+    var _debounceTimer = null;
+
+    function setAvailability(btn) {
+        var val = btn.dataset.available;
+        _activeAvailability = (_activeAvailability === val) ? '' : val;
+        document.querySelectorAll('[data-available]').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.available === _activeAvailability);
+        });
+        doFetch();
+    }
+
+    function doFetch() {
+        var params = new URLSearchParams({
+            name: document.getElementById('filterName').value,
+            specialization: document.getElementById('filterSpecialization').value,
+            salonName: document.getElementById('filterSalonName').value,
+            available: _activeAvailability
+        });
+        fetch('/staff/filter?' + params.toString())
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                document.getElementById('staffTableBody').innerHTML = html;
+            });
+    }
+
+    function debounce() {
+        clearTimeout(_debounceTimer);
+        _debounceTimer = setTimeout(doFetch, 300);
+    }
+
+    document.getElementById('filterName').addEventListener('input', debounce);
+    document.getElementById('filterSpecialization').addEventListener('input', debounce);
+    document.getElementById('filterSalonName').addEventListener('input', debounce);
+</script>
+}

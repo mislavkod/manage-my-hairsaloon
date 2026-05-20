@@ -1,0 +1,27 @@
+@model List<manage_my_hairsaloon.Models.Service>
+@if (Model.Any())
+{
+    foreach (var service in Model)
+    {
+        <tr>
+            <td>@service.Name</td>
+            <td>@(service.Description?.Length > 60 ? service.Description.Substring(0, 60) + "…" : service.Description)</td>
+            <td>@service.Price.ToString("C")</td>
+            <td>@service.DurationMinutes min</td>
+            <td><span class="badge-brass">@service.Category</span></td>
+            <td>@service.HairSalon?.Name</td>
+            <td>
+                <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id"
+                   class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="7" style="text-align:center; color:var(--clr-sand); padding:1.5rem 0;">
+            No services match the selected filters.
+        </td>
+    </tr>
+}

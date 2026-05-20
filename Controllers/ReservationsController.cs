@@ -32,6 +32,7 @@ namespace manage_my_hairsaloon.Controllers
         public IActionResult ByStatus(ReservationStatus status)
         {
             var reservations = _reservationRepo.GetByStatus(status);
+            ViewBag.ActiveStatus = status.ToString();
             return View("Index", reservations);
         }
 
@@ -42,6 +43,23 @@ namespace manage_my_hairsaloon.Controllers
         {
             var reservations = _reservationRepo.GetBySalonIdAndStatus(salonId, status);
             return View("Index", reservations);
+        }
+
+        // GET: /reservations/filter  — AJAX endpoint, returns partial HTML rows
+        [HttpGet("reservations/filter")]
+        public IActionResult Filter(string? status, string? customerName, string? serviceName,
+                                    DateTime? dateFrom, DateTime? dateTo)
+        {
+            var reservations = _reservationRepo.Filter(status, customerName, serviceName, dateFrom, dateTo);
+            return PartialView("_ReservationsTable", reservations);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            _reservationRepo.Delete(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

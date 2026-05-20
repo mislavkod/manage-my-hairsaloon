@@ -1,0 +1,29 @@
+@model List<manage_my_hairsaloon.Models.Review>
+@if (Model.Any())
+{
+    foreach (var review in Model)
+    {
+        <tr>
+            <td>@review.Customer?.FirstName @review.Customer?.LastName</td>
+            <td>
+                <span class="rating-stars">
+                    @for (int i = 0; i < review.Rating; i++) { <text>★</text> }@for (int i = review.Rating; i < 5; i++) { <text>☆</text> }
+                </span>
+            </td>
+            <td>@(review.Comment?.Length > 80 ? review.Comment.Substring(0, 80) + "…" : review.Comment)</td>
+            <td>@review.CreatedAt.ToString("dd MMM yyyy")</td>
+            <td>
+                <a asp-controller="Reviews" asp-action="Details" asp-route-id="@review.Id"
+                   class="btn-outline-brass" style="font-size:0.72rem; padding:0.25rem 0.7rem;">Details</a>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="5" style="text-align:center; color:var(--clr-sand); padding:1.5rem 0;">
+            No reviews match the selected filters.
+        </td>
+    </tr>
+}

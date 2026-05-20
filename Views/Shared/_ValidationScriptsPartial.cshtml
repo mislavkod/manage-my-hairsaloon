@@ -1,2 +1,10 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script>
+    // Validate each field immediately on blur (before first submit attempt)
+    $.validator.setDefaults({
+        onfocusout: function (element) {
+            this.element(element);
+        }
+    });
+</script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
