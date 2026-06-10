@@ -1,4 +1,5 @@
 using manage_my_hairsaloon.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace manage_my_hairsaloon.Data
@@ -7,9 +8,12 @@ namespace manage_my_hairsaloon.Data
     {
         public static void Seed(AppDbContext context)
         {
-            context.Database.Migrate();
+            if (context.Database.IsRelational())
+                context.Database.Migrate();
+            else
+                context.Database.EnsureCreated();
 
-            if (context.Users.Any()) return;
+            if (context.BusinessUsers.Any()) return;
 
             // ===== USERS =====
             var customer1 = new User { Email = "john@email.com",   PasswordHash = "hash123",    FirstName = "John",  LastName = "Doe",     PhoneNumber = "555-0101", Role = UserRole.Customer, CreatedAt = DateTime.UtcNow };
@@ -21,7 +25,7 @@ namespace manage_my_hairsaloon.Data
             var staffUser4 = new User { Email = "tom@salon.com",   PasswordHash = "staffhash4", FirstName = "Tom",   LastName = "Miller",  PhoneNumber = "555-0204", Role = UserRole.Staff,    CreatedAt = DateTime.UtcNow };
             var staffUser5 = new User { Email = "lucy@salon.com",  PasswordHash = "staffhash5", FirstName = "Lucy",  LastName = "Taylor",  PhoneNumber = "555-0205", Role = UserRole.Staff,    CreatedAt = DateTime.UtcNow };
 
-            context.Users.AddRange(customer1, customer2, customer3, staffUser1, staffUser2, staffUser3, staffUser4, staffUser5);
+            context.BusinessUsers.AddRange(customer1, customer2, customer3, staffUser1, staffUser2, staffUser3, staffUser4, staffUser5);
             context.SaveChanges();
 
             // ===== HAIR SALONS =====
@@ -69,6 +73,66 @@ namespace manage_my_hairsaloon.Data
                 new Reservation { CustomerId = customer3.Id, StaffId = staff5.Id, ServiceId = svc9.Id, ReservationDateTime = new DateTime(2026, 4, 13, 14, 0,  0), Status = ReservationStatus.Cancelled, Notes = "Customer cancelled",                   CreatedAt = DateTime.UtcNow }
             );
             context.SaveChanges();
+        }
+
+        public static async Task SeedIdentityAsync(IServiceProvider services)
+        {
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+            string[] roles = { "Admin", "Staff", "Customer" };
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
+
+            const string adminEmail = "admin@salon.com";
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            {
+                var admin = new AppUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    FirstName = "Admin",
+                    LastName = "User"
+                };
+                var result = await userManager.CreateAsync(admin, "Admin123!");
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(admin, "Admin");
+            }
+
+            // Repair: ensure every Customer-role AppUser has a matching BusinessUsers row
+            var context = services.GetRequiredService<AppDbContext>();
+            var customerRole = await roleManager.FindByNameAsync("Customer");
+            if (customerRole != null)
+            {
+                var customerAppUserIds = context.UserRoles
+                    .Where(ur => ur.RoleId == customerRole.Id)
+                    .Select(ur => ur.UserId)
+                    .ToHashSet();
+
+                var appUsers = context.Users
+                    .Where(u => customerAppUserIds.Contains(u.Id))
+                    .ToList();
+
+                foreach (var appUser in appUsers)
+                {
+                    if (!context.BusinessUsers.Any(u => u.Email == appUser.Email))
+                    {
+                        context.BusinessUsers.Add(new manage_my_hairsaloon.Models.User
+                        {
+                            Email = appUser.Email ?? string.Empty,
+                            FirstName = appUser.FirstName,
+                            LastName = appUser.LastName,
+                            PasswordHash = "identity",
+                            Role = manage_my_hairsaloon.Models.UserRole.Customer,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+                context.SaveChanges();
+            }
         }
     }
 }

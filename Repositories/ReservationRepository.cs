@@ -65,6 +65,17 @@ namespace manage_my_hairsaloon.Repositories
                 .ToList();
         }
 
+        public List<Reservation> GetBySalonId(int salonId)
+        {
+            return _context.Reservations
+                .Where(r => r.DeletedAt == null)
+                .Include(r => r.Customer)
+                .Include(r => r.Staff)
+                .Include(r => r.Service)
+                .Where(r => r.Staff != null && r.Staff.HairSalonId == salonId)
+                .ToList();
+        }
+
         public List<Reservation> GetByServiceId(int serviceId)
         {
             return _context.Reservations

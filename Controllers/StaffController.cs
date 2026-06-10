@@ -1,7 +1,9 @@
 using manage_my_hairsaloon.Models;
 using manage_my_hairsaloon.Repositories;
 using manage_my_hairsaloon.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace manage_my_hairsaloon.Controllers
 {
@@ -16,12 +18,21 @@ namespace manage_my_hairsaloon.Controllers
             _userRepo = userRepo;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
-            var staff = _staffRepo.GetAll();
-            return View(staff);
+            if (User.IsInRole("Staff"))
+            {
+                var email = User.FindFirstValue(ClaimTypes.Email);
+                var businessUser = email != null ? _userRepo.GetByEmail(email) : null;
+                var staffRecord = businessUser != null ? _staffRepo.GetByUserId(businessUser.Id) : null;
+                if (staffRecord != null)
+                    return View(_staffRepo.GetBySalonId(staffRecord.HairSalonId));
+            }
+            return View(_staffRepo.GetAll());
         }
 
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             var staffMember = _staffRepo.GetById(id);
@@ -31,6 +42,7 @@ namespace manage_my_hairsaloon.Controllers
 
         // Primjer 2: fiksna slug ruta bez parametara
         // Dostupno na: /Staff/Available
+        [AllowAnonymous]
         [HttpGet("Staff/Available")]
         public IActionResult Available()
         {
@@ -40,6 +52,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /salons/{salonId}/staff/available
+        [AllowAnonymous]
         [HttpGet("salons/{salonId}/staff/available")]
         public IActionResult AvailableBySalon(int salonId)
         {
@@ -49,6 +62,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /staff/filter — AJAX endpoint, returns partial HTML rows
+        [AllowAnonymous]
         [HttpGet("staff/filter")]
         public IActionResult Filter(string? name, string? specialization, string? salonName, bool? available)
         {
@@ -57,6 +71,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /Staff/Edit/5
+        [Authorize(Roles = "Admin")]
         public IActionResult Edit(int id)
         {
             var staff = _staffRepo.GetById(id);
@@ -82,6 +97,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // POST: /Staff/Edit/5
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, EditStaffViewModel vm)
@@ -146,6 +162,7 @@ namespace manage_my_hairsaloon.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)

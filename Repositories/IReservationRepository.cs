@@ -8,6 +8,7 @@ namespace manage_my_hairsaloon.Repositories
         Reservation? GetById(int id);
         List<Reservation> GetByCustomerId(int customerId);
         List<Reservation> GetByStaffId(int staffId);
+        List<Reservation> GetBySalonId(int salonId);
         List<Reservation> GetByStatus(ReservationStatus status);
         List<Reservation> GetByServiceId(int serviceId);
         List<Reservation> GetBySalonIdAndStatus(int salonId, ReservationStatus status);

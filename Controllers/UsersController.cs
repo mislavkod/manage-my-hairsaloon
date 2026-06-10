@@ -1,6 +1,7 @@
 using manage_my_hairsaloon.Models;
 using manage_my_hairsaloon.Repositories;
 using manage_my_hairsaloon.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace manage_my_hairsaloon.Controllers
@@ -14,12 +15,14 @@ namespace manage_my_hairsaloon.Controllers
             _userRepo = userRepo;
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             var users = _userRepo.GetAll();
             return View(users);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Details(int id)
         {
             var user = _userRepo.GetById(id);
@@ -28,6 +31,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /users/filter — AJAX endpoint, returns partial HTML rows
+        [Authorize(Roles = "Admin")]
         [HttpGet("users/filter")]
         public IActionResult Filter(string? name, string? role, DateTime? createdBefore)
         {
@@ -35,6 +39,7 @@ namespace manage_my_hairsaloon.Controllers
             return PartialView("_UsersTable", users);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -58,6 +63,7 @@ namespace manage_my_hairsaloon.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, EditUserViewModel vm)
@@ -109,6 +115,7 @@ namespace manage_my_hairsaloon.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)

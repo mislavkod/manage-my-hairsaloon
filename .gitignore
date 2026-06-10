@@ -39,6 +39,7 @@ Generated_Code/
 appsettings.*.json
 !appsettings.Development.json
 secrets.json
+conf.json
 
 ## OS
 .DS_Store

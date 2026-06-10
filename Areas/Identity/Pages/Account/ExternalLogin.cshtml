@@ -1,0 +1,57 @@
+@page
+@model manage_my_hairsaloon.Areas.Identity.Pages.Account.ExternalLoginModel
+@{
+    ViewData["Title"] = "Sign In with " + (Model.ProviderDisplayName ?? "External Provider");
+}
+
+<div class="page-header">
+    <h1>Complete Registration</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div style="color:var(--clr-amber); background:rgba(217,123,43,0.1); border:1px solid var(--clr-amber); border-radius:3px; padding:0.75rem; margin-bottom:1rem; font-size:0.88rem;">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="card-barbershop" style="padding: 2rem 2.5rem; border-top: 3px solid var(--clr-brass);">
+            <p style="color:var(--clr-sand); font-size:0.9rem; margin-bottom:1.5rem; text-align:center;">
+                You're signing in via <strong style="color:var(--clr-brass);">@Model.ProviderDisplayName</strong>.<br />
+                Please confirm or fill in your details below.
+            </p>
+
+            <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-styled" style="color:var(--clr-amber); background:rgba(217,123,43,0.1); border:1px solid var(--clr-amber); border-radius:3px; padding:0.75rem; margin-bottom:1rem; font-size:0.88rem;"></div>
+
+                <div style="margin-bottom:1.25rem;">
+                    <label asp-for="Input.FirstName" style="display:block; font-family:var(--font-body); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--clr-sand); margin-bottom:0.35rem;"></label>
+                    <input asp-for="Input.FirstName" class="input-barbershop" style="width:100%;" />
+                    <span asp-validation-for="Input.FirstName" style="color:var(--clr-amber); font-size:0.82rem;"></span>
+                </div>
+
+                <div style="margin-bottom:1.25rem;">
+                    <label asp-for="Input.LastName" style="display:block; font-family:var(--font-body); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--clr-sand); margin-bottom:0.35rem;"></label>
+                    <input asp-for="Input.LastName" class="input-barbershop" style="width:100%;" />
+                    <span asp-validation-for="Input.LastName" style="color:var(--clr-amber); font-size:0.82rem;"></span>
+                </div>
+
+                <div style="margin-bottom:1.75rem;">
+                    <label asp-for="Input.Email" style="display:block; font-family:var(--font-body); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--clr-sand); margin-bottom:0.35rem;"></label>
+                    <input asp-for="Input.Email" class="input-barbershop" autocomplete="username" style="width:100%;" />
+                    <span asp-validation-for="Input.Email" style="color:var(--clr-amber); font-size:0.82rem;"></span>
+                </div>
+
+                <button type="submit" class="btn-brass w-100" style="padding:0.65rem; font-size:0.85rem;">
+                    Complete Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

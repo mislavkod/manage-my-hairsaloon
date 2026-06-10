@@ -1,18 +1,20 @@
 using manage_my_hairsaloon.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace manage_my_hairsaloon.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> BusinessUsers { get; set; }
         public DbSet<HairSalon> HairSalons { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<SalonPhoto> SalonPhotos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -79,6 +81,13 @@ namespace manage_my_hairsaloon.Data
                 .WithMany(u => u.Reviews)
                 .HasForeignKey(r => r.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // SalonPhoto → HairSalon
+            modelBuilder.Entity<SalonPhoto>()
+                .HasOne(p => p.HairSalon)
+                .WithMany(h => h.Photos)
+                .HasForeignKey(p => p.HairSalonId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

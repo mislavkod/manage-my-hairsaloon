@@ -137,3 +137,14 @@ C:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\runtimes\win\l
 C:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\misla\source\repos\manage-my-hairsaloon\obj\Debug\net8.0\manage-my-hairsaloon.csproj.AssemblyReference.cache
 C:\Users\misla\source\repos\manage-my-hairsaloon\obj\Debug\net8.0\manage-m.084B2ABA.Up2Date
+c:\Users\misla\source\repos\manage-my-hairsaloon\obj\Debug\net8.0\manage-my-hairsaloon.MvcApplicationPartsAssemblyInfo.cs
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.UI.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Embedded.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+c:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\conf.json
+C:\Users\misla\source\repos\manage-my-hairsaloon\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll

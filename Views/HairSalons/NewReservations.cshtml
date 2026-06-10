@@ -80,18 +80,19 @@
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">
                     <h2 class="section-title">Customer</h2>
-                    <select asp-for="CustomerId" class="input-barbershop" style="width: 100%;" required>
-                        <option value="">-- Select Customer --</option>
-                        @if (Model.Customers != null)
-                        {
-                            foreach (var c in Model.Customers)
-                            {
-                                <option value="@c.Id">@c.FirstName @c.LastName</option>
-                            }
-                        }
-                    </select>
-                    <p style="font-size: 0.85em; font-style: italic; color: var(--color-warm-sand, #B89A6A); margin-top: 0.25rem;">This will be auto-filled once login is added.</p>
-                    <span asp-validation-for="CustomerId" class="text-danger" style="color: #D97B2B;"></span>
+                    @if (Model.CustomerId > 0)
+                    {
+                        <input type="hidden" asp-for="CustomerId" />
+                        <p class="input-barbershop" style="width:100%; margin:0; cursor:default; opacity:0.85;">
+                            @ViewBag.CustomerName
+                        </p>
+                    }
+                    else
+                    {
+                        <div class="text-danger" style="color:#D97B2B;">
+                            Your account is not linked to a customer profile. Please contact an administrator.
+                        </div>
+                    }
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.5rem;">

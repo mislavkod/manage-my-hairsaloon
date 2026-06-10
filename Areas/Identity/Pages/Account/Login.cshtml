@@ -1,0 +1,53 @@
+@page
+@model manage_my_hairsaloon.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="page-header">
+    <h1>Sign In</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card-barbershop" style="padding: 2rem 2.5rem; border-top: 3px solid var(--clr-brass);">
+            <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-styled" style="color:var(--clr-amber); background:rgba(217,123,43,0.1); border:1px solid var(--clr-amber); border-radius:3px; padding:0.75rem; margin-bottom:1rem; font-size:0.88rem;"></div>
+
+                <div style="margin-bottom:1.25rem;">
+                    <label asp-for="Input.Email" style="display:block; font-family:var(--font-body); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--clr-sand); margin-bottom:0.35rem;"></label>
+                    <input asp-for="Input.Email" class="input-barbershop" autocomplete="username" style="width:100%;" />
+                    <span asp-validation-for="Input.Email" style="color:var(--clr-amber); font-size:0.82rem;"></span>
+                </div>
+
+                <div style="margin-bottom:1.75rem;">
+                    <label asp-for="Input.Password" style="display:block; font-family:var(--font-body); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--clr-sand); margin-bottom:0.35rem;"></label>
+                    <input asp-for="Input.Password" class="input-barbershop" autocomplete="current-password" style="width:100%;" />
+                    <span asp-validation-for="Input.Password" style="color:var(--clr-amber); font-size:0.82rem;"></span>
+                </div>
+
+                <button type="submit" class="btn-brass w-100" style="padding:0.65rem; font-size:0.85rem;">Sign In</button>
+            </form>
+
+            <div style="text-align:center; color:var(--clr-brass); margin:1.5rem 0; letter-spacing:0.2em;">— ◆ —</div>
+
+            <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <button type="submit" name="provider" value="Google"
+                        style="width:100%; padding:0.6rem; background:#fff; color:#444; border:1px solid #ccc; border-radius:3px; font-family:var(--font-body); font-size:0.88rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.6rem;">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:18px; height:18px;" />
+                    Sign in with Google
+                </button>
+            </form>
+
+            <div style="text-align:center; color:var(--clr-brass); margin:1.5rem 0; letter-spacing:0.2em;">— ◆ —</div>
+
+            <div class="text-center" style="color:var(--clr-sand);">
+                Don't have an account? <a asp-page="./Register" style="color:var(--clr-brass);">Register</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

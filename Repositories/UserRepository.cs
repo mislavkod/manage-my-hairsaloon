@@ -15,17 +15,17 @@ namespace manage_my_hairsaloon.Repositories
 
         public List<User> GetAll()
         {
-            return _context.Users.Where(u => u.DeletedAt == null).ToList();
+            return _context.BusinessUsers.Where(u => u.DeletedAt == null).ToList();
         }
 
         public User? GetById(int id)
         {
-            return _context.Users.FirstOrDefault(u => u.Id == id && u.DeletedAt == null);
+            return _context.BusinessUsers.FirstOrDefault(u => u.Id == id && u.DeletedAt == null);
         }
 
         public List<User> GetByRole(UserRole role)
         {
-            return _context.Users.Where(u => u.Role == role && u.DeletedAt == null).ToList();
+            return _context.BusinessUsers.Where(u => u.Role == role && u.DeletedAt == null).ToList();
         }
 
         public List<User> GetCustomers()
@@ -40,12 +40,12 @@ namespace manage_my_hairsaloon.Repositories
 
         public User? GetByEmail(string email)
         {
-            return _context.Users.FirstOrDefault(u => u.Email == email && u.DeletedAt == null);
+            return _context.BusinessUsers.FirstOrDefault(u => u.Email == email && u.DeletedAt == null);
         }
 
         public List<User> Filter(string? name, string? role, DateTime? createdBefore)
         {
-            var q = _context.Users.Where(u => u.DeletedAt == null).AsQueryable();
+            var q = _context.BusinessUsers.Where(u => u.DeletedAt == null).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -65,19 +65,19 @@ namespace manage_my_hairsaloon.Repositories
 
         public void Add(User user)
         {
-            _context.Users.Add(user);
+            _context.BusinessUsers.Add(user);
             _context.SaveChanges();
         }
 
         public void Update(User user)
         {
-            _context.Users.Update(user);
+            _context.BusinessUsers.Update(user);
             _context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = _context.BusinessUsers.Find(id);
             if (user != null)
             {
                 user.DeletedAt = DateTime.UtcNow;

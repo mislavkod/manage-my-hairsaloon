@@ -49,6 +49,19 @@ namespace manage_my_hairsaloon.Repositories
                 .ToList();
         }
 
+        public List<Review> GetBySalonId(int salonId)
+        {
+            return _context.Reviews
+                .Where(r => r.DeletedAt == null)
+                .Include(r => r.Customer)
+                .Include(r => r.Reservation)
+                    .ThenInclude(res => res!.Staff)
+                .Where(r => r.Reservation != null &&
+                            r.Reservation.Staff != null &&
+                            r.Reservation.Staff.HairSalonId == salonId)
+                .ToList();
+        }
+
         public List<Review> Filter(string? customerName, int? minRating, string? comment)
         {
             var q = _context.Reviews

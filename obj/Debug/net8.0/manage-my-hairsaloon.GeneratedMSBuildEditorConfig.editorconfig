@@ -20,6 +20,26 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Areas/Identity/Pages/Account/ExternalLogin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxFeHRlcm5hbExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Areas/Identity/Pages/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Areas/Identity/Pages/Account/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Areas/Identity/Pages/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Areas/Identity/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/misla/source/repos/manage-my-hairsaloon/Views/HairSalons/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGFpclNhbG9uc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -50,6 +70,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/misla/source/repos/manage-my-hairsaloon/Views/HairSalons/NewStaffUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGFpclNhbG9uc1xOZXdTdGFmZlVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Views/HairSalons/_PhotoList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGFpclNhbG9uc1xfUGhvdG9MaXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/misla/source/repos/manage-my-hairsaloon/Views/Home/Index.cshtml]
@@ -114,6 +138,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/misla/source/repos/manage-my-hairsaloon/Views/Shared/_DatePicker.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EYXRlUGlja2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/misla/source/repos/manage-my-hairsaloon/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/misla/source/repos/manage-my-hairsaloon/Views/Shared/_ValidationScriptsPartial.cshtml]

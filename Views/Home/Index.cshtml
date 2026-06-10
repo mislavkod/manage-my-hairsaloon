@@ -102,14 +102,17 @@
 <div class="divider-ornament">— ◆ ◆ ◆ —</div>
 
 <div class="row g-4 justify-content-center">
-    <div class="col-6 col-md-3">
-        <a asp-controller="Users" asp-action="Index" style="text-decoration:none;">
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-label">Users</div>
-            </div>
-        </a>
-    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-6 col-md-3">
+            <a asp-controller="Users" asp-action="Index" style="text-decoration:none;">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Users</div>
+                </div>
+            </a>
+        </div>
+    }
     <div class="col-6 col-md-3">
         <a asp-controller="Reviews" asp-action="Index" style="text-decoration:none;">
             <div class="stat-card">

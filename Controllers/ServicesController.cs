@@ -1,26 +1,46 @@
 using manage_my_hairsaloon.Models;
 using manage_my_hairsaloon.Repositories;
 using manage_my_hairsaloon.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace manage_my_hairsaloon.Controllers
 {
     public class ServicesController : Controller
     {
         private readonly IServiceRepository _serviceRepo;
+        private readonly IUserRepository _userRepo;
+        private readonly IStaffRepository _staffRepo;
 
-        public ServicesController(IServiceRepository serviceRepo)
+        public ServicesController(IServiceRepository serviceRepo, IUserRepository userRepo, IStaffRepository staffRepo)
         {
             _serviceRepo = serviceRepo;
+            _userRepo = userRepo;
+            _staffRepo = staffRepo;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
+            if (User.IsInRole("Staff"))
+            {
+                var email = User.FindFirstValue(ClaimTypes.Email);
+                var businessUser = email != null ? _userRepo.GetByEmail(email) : null;
+                var staffRecord = businessUser != null ? _staffRepo.GetByUserId(businessUser.Id) : null;
+                if (staffRecord != null)
+                {
+                    var salonServices = _serviceRepo.GetBySalonId(staffRecord.HairSalonId);
+                    ViewBag.MaxPrice = salonServices.Any() ? salonServices.Max(s => s.Price) : 100m;
+                    return View(salonServices);
+                }
+            }
             var services = _serviceRepo.GetAll();
             ViewBag.MaxPrice = services.Any() ? services.Max(s => s.Price) : 100m;
             return View(services);
         }
 
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             var service = _serviceRepo.GetById(id);
@@ -30,6 +50,7 @@ namespace manage_my_hairsaloon.Controllers
 
         // Primjer 1: atributni routing s enum parametrom u URL-u
         // Dostupno na: /services/category/HairCut
+        [AllowAnonymous]
         [HttpGet("services/category/{category}")]
         public IActionResult ByCategory(ServiceCategory category)
         {
@@ -40,6 +61,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /services/filter  — AJAX endpoint, returns partial HTML rows
+        [AllowAnonymous]
         [HttpGet("services/filter")]
         public IActionResult Filter(string? category, string? serviceName, string? salonName, decimal? maxPrice)
         {
@@ -47,6 +69,7 @@ namespace manage_my_hairsaloon.Controllers
             return PartialView("_ServicesTable", services);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -71,6 +94,7 @@ namespace manage_my_hairsaloon.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, EditServiceViewModel vm)
@@ -117,6 +141,7 @@ namespace manage_my_hairsaloon.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)

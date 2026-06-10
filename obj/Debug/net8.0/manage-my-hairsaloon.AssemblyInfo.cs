@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+510d02b15dc94a001061843381a20162f2ee5c77")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a802c5a88049cda6229cbb300376e274f3af9fb")]
 [assembly: System.Reflection.AssemblyProductAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyTitleAttribute("manage-my-hairsaloon")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

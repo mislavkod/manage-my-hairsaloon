@@ -1,7 +1,10 @@
+using manage_my_hairsaloon.Data;
 using manage_my_hairsaloon.Models;
 using manage_my_hairsaloon.Repositories;
 using manage_my_hairsaloon.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace manage_my_hairsaloon.Controllers
 {
@@ -12,6 +15,7 @@ namespace manage_my_hairsaloon.Controllers
         private readonly IStaffRepository _staffRepo;
         private readonly IReservationRepository _reservationRepo;
         private readonly IUserRepository _userRepo;
+        private readonly AppDbContext _context;
 
         // Working hours: 09:00 – 18:00 (inclusive start hour)
         private static readonly int[] WorkHours = Enumerable.Range(9, 10).ToArray();
@@ -21,29 +25,41 @@ namespace manage_my_hairsaloon.Controllers
             IServiceRepository serviceRepo,
             IStaffRepository staffRepo,
             IReservationRepository reservationRepo,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            AppDbContext context)
         {
             _salonRepo = salonRepo;
             _serviceRepo = serviceRepo;
             _staffRepo = staffRepo;
             _reservationRepo = reservationRepo;
             _userRepo = userRepo;
+            _context = context;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var salons = _salonRepo.GetAll();
             return View(salons);
         }
 
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             var salon = _salonRepo.GetById(id);
             if (salon == null) return NotFound();
+
+            if (User.IsInRole("Staff"))
+            {
+                var staffRecord = GetCurrentStaff();
+                ViewBag.CurrentUserSalonId = staffRecord?.HairSalonId;
+            }
+
             return View(salon);
         }
 
         // GET: /HairSalons/Create
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -51,6 +67,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // POST: /HairSalons/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(HairSalon model)
@@ -69,6 +86,7 @@ namespace manage_my_hairsaloon.Controllers
         // Primjer 4: drugačiji prefix u ruti od naziva kontrolera
         // Kontroler se zove HairSalons, ali ruta koristi kraći alias "salons"
         // Dostupno na: /salons/search/Premium
+        [AllowAnonymous]
         [HttpGet("salons/search/{name}")]
         public IActionResult Search(string name)
         {
@@ -78,6 +96,7 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /salons/{salonId}/NewReservations?date=2026-05-10
+        [Authorize]
         [HttpGet("salons/{salonId}/NewReservations")]
         public IActionResult NewReservation(int salonId, DateTime? date)
         {
@@ -85,10 +104,18 @@ namespace manage_my_hairsaloon.Controllers
             if (salon == null) return NotFound();
 
             var vm = BuildViewModel(salonId, salon, date);
+
+            var businessUser = GetCurrentBusinessUser();
+            vm.CustomerId = businessUser?.Id ?? 0;
+            ViewBag.CustomerName = businessUser != null
+                ? $"{businessUser.FirstName} {businessUser.LastName}"
+                : null;
+
             return View("NewReservations", vm);
         }
 
         // POST: /salons/{salonId}/NewReservations
+        [Authorize]
         [HttpPost("salons/{salonId}/NewReservations")]
         [ValidateAntiForgeryToken]
         public IActionResult NewReservation(int salonId, NewReservationViewModel vm)
@@ -96,14 +123,28 @@ namespace manage_my_hairsaloon.Controllers
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
+            // Always resolve customer from the currently signed-in user (ignore any posted value)
+            var businessUser = GetCurrentBusinessUser();
+
             // Repopulate display data before any return View()
             var rebuildVm = BuildViewModel(salonId, salon, vm.SelectedDate);
             rebuildVm.ServiceId = vm.ServiceId;
             rebuildVm.StaffId = vm.StaffId;
-            rebuildVm.CustomerId = vm.CustomerId;
             rebuildVm.SelectedDate = vm.SelectedDate;
             rebuildVm.SelectedHour = vm.SelectedHour;
             rebuildVm.Notes = vm.Notes;
+
+            if (businessUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "Your account is not linked to a customer profile. Please contact an administrator.");
+                rebuildVm.CustomerId = 0;
+                ViewBag.CustomerName = null;
+                return View("NewReservations", rebuildVm);
+            }
+
+            vm.CustomerId = businessUser.Id;
+            rebuildVm.CustomerId = vm.CustomerId;
+            ViewBag.CustomerName = $"{businessUser.FirstName} {businessUser.LastName}";
 
             // Remove navigation-only properties from validation
             ModelState.Remove(nameof(NewReservationViewModel.Salon));
@@ -111,6 +152,7 @@ namespace manage_my_hairsaloon.Controllers
             ModelState.Remove(nameof(NewReservationViewModel.AvailableStaff));
             ModelState.Remove(nameof(NewReservationViewModel.Customers));
             ModelState.Remove(nameof(NewReservationViewModel.AvailableHours));
+            ModelState.Remove(nameof(NewReservationViewModel.CustomerId));
 
             if (!ModelState.IsValid)
                 return View("NewReservations", rebuildVm);
@@ -145,9 +187,13 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /salons/{salonId}/NewStaff/NewUser
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("salons/{salonId}/NewStaff/NewUser")]
         public IActionResult NewStaffUser(int salonId)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -156,10 +202,14 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // POST: /salons/{salonId}/NewStaff/NewUser
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost("salons/{salonId}/NewStaff/NewUser")]
         [ValidateAntiForgeryToken]
         public IActionResult NewStaffUser(int salonId, User model, string? password)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -189,9 +239,13 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /salons/{salonId}/NewStaff
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("salons/{salonId}/NewStaff")]
         public IActionResult NewStaff(int salonId, int? selectedUserId)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -201,10 +255,14 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // POST: /salons/{salonId}/NewStaff
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost("salons/{salonId}/NewStaff")]
         [ValidateAntiForgeryToken]
         public IActionResult NewStaff(int salonId, Staff model)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -229,9 +287,13 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // GET: /salons/{salonId}/NewService
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("salons/{salonId}/NewService")]
         public IActionResult NewService(int salonId)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -241,10 +303,14 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // POST: /salons/{salonId}/NewService
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost("salons/{salonId}/NewService")]
         [ValidateAntiForgeryToken]
         public IActionResult NewService(int salonId, Service model)
         {
+            if (User.IsInRole("Staff") && GetCurrentStaff()?.HairSalonId != salonId)
+                return Forbid();
+
             var salon = _salonRepo.GetById(salonId);
             if (salon == null) return NotFound();
 
@@ -265,6 +331,20 @@ namespace manage_my_hairsaloon.Controllers
         }
 
         // -------------------------------------------------------
+        private User? GetCurrentBusinessUser()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email)) return null;
+            return _userRepo.GetByEmail(email);
+        }
+
+        private Staff? GetCurrentStaff()
+        {
+            var businessUser = GetCurrentBusinessUser();
+            if (businessUser == null) return null;
+            return _staffRepo.GetByUserId(businessUser.Id);
+        }
+
         private NewReservationViewModel BuildViewModel(int salonId, HairSalon salon, DateTime? date)
         {
             var vm = new NewReservationViewModel
@@ -292,6 +372,7 @@ namespace manage_my_hairsaloon.Controllers
             return vm;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
@@ -313,6 +394,7 @@ namespace manage_my_hairsaloon.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, EditHairSalonViewModel vm)
@@ -353,12 +435,95 @@ namespace manage_my_hairsaloon.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             _salonRepo.Delete(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /HairSalons/{id}/UploadPhoto
+        [Authorize(Roles = "Admin")]
+        [HttpPost("HairSalons/{id}/UploadPhoto")]
+        public IActionResult UploadPhoto(int id, IFormFile file)
+        {
+            var salon = _salonRepo.GetById(id);
+            if (salon == null) return NotFound();
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+            if (!allowedTypes.Contains(file.ContentType))
+                return BadRequest("Only JPEG, PNG and WebP images are allowed.");
+
+            if (file.Length > 5 * 1024 * 1024)
+                return BadRequest("File size must not exceed 5 MB.");
+
+            var uploadsPath = Path.Combine(
+                Directory.GetCurrentDirectory(), "wwwroot", "uploads", "salons", id.ToString());
+
+            Directory.CreateDirectory(uploadsPath);
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var storedName = Guid.NewGuid().ToString() + extension;
+            var fullPath = Path.Combine(uploadsPath, storedName);
+
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            var photo = new manage_my_hairsaloon.Models.SalonPhoto
+            {
+                HairSalonId = id,
+                FileName = file.FileName,
+                FilePath = $"/uploads/salons/{id}/{storedName}",
+                ContentType = file.ContentType,
+                FileSize = file.Length,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.SalonPhotos.Add(photo);
+            _context.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+        // GET: /HairSalons/{id}/GetPhotos
+        [AllowAnonymous]
+        [HttpGet("HairSalons/{id}/GetPhotos")]
+        public IActionResult GetPhotos(int id)
+        {
+            var photos = _context.SalonPhotos
+                .Where(p => p.HairSalonId == id)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+
+            return PartialView("_PhotoList", photos);
+        }
+
+        // POST: /HairSalons/DeletePhoto/{photoId}
+        [Authorize(Roles = "Admin")]
+        [HttpPost("HairSalons/DeletePhoto/{photoId}")]
+        public IActionResult DeletePhoto(int photoId)
+        {
+            var photo = _context.SalonPhotos.FirstOrDefault(p => p.Id == photoId);
+            if (photo == null) return NotFound();
+
+            var physicalPath = Path.Combine(
+                Directory.GetCurrentDirectory(), "wwwroot",
+                photo.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+            if (System.IO.File.Exists(physicalPath))
+                System.IO.File.Delete(physicalPath);
+
+            _context.SalonPhotos.Remove(photo);
+            _context.SaveChanges();
+
+            return Json(new { success = true });
         }
     }
 }

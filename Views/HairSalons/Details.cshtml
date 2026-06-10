@@ -14,11 +14,14 @@
 </div>
 
 <div style="margin-bottom:1.5rem; display:flex; gap:1rem;">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-outline-brass">Edit</a>
-    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this salon?');">
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn-outline-brass" style="border-color:#c0392b; color:#c0392b;">Delete</button>
-    </form>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-outline-brass">Edit</a>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this salon?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-outline-brass" style="border-color:#c0392b; color:#c0392b;">Delete</button>
+        </form>
+    }
 </div>
 
 <div class="card-barbershop">
@@ -37,13 +40,19 @@
     </dl>
 </div>
 
-<div style="margin-bottom:1.5rem;">
-    <a href="/salons/@Model.Id/NewReservations" class="btn-outline-brass">Make a Reservation</a>
-</div>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div style="margin-bottom:1.5rem;">
+        <a href="/salons/@Model.Id/NewReservations" class="btn-outline-brass">Make a Reservation</a>
+    </div>
+}
 
-<div style="margin-bottom:1.5rem;">
-    <a href="/salons/@Model.Id/NewStaff" class="btn-outline-brass">Add Staff Member</a>
-</div>
+@if (User.IsInRole("Admin") || (User.IsInRole("Staff") && ViewBag.CurrentUserSalonId == Model.Id))
+{
+    <div style="margin-bottom:1.5rem;">
+        <a href="/salons/@Model.Id/NewStaff" class="btn-outline-brass">Add Staff Member</a>
+    </div>
+}
 
 @if (Model.Staff != null && Model.Staff.Any())
 {
@@ -91,9 +100,12 @@
 
 <div class="divider-ornament">— ◆ —</div>
 
-<div style="margin-bottom:1.5rem;">
-    <a href="/salons/@Model.Id/NewService" class="btn-outline-brass">Add New Service</a>
-</div>
+@if (User.IsInRole("Admin") || (User.IsInRole("Staff") && ViewBag.CurrentUserSalonId == Model.Id))
+{
+    <div style="margin-bottom:1.5rem;">
+        <a href="/salons/@Model.Id/NewService" class="btn-outline-brass">Add New Service</a>
+    </div>
+}
 
 @if (Model.Services != null && Model.Services.Any())
 {
@@ -230,4 +242,56 @@
 else
 {
     <a asp-controller="HairSalons" asp-action="Index" class="back-link">← Back to Hair Salons</a>
+}
+
+<div class="divider-ornament">— ◆ —</div>
+
+<div class="section-title">Photos</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <form id="salonPhotoDz"
+          action="/HairSalons/@Model.Id/UploadPhoto"
+          enctype="multipart/form-data"
+          class="dropzone"
+          style="border:2px dashed var(--brass); background:rgba(201,168,76,0.05); border-radius:6px; min-height:120px; margin-bottom:1rem;">
+    </form>
+}
+
+<div id="photoList"></div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/lib/dropzone/dropzone.min.css" />
+    <script src="~/lib/dropzone/dropzone.min.js"></script>
+    <script>
+        Dropzone.options.salonPhotoDz = {
+            paramName: "file",
+            acceptedFiles: "image/jpeg,image/png,image/webp",
+            maxFilesize: 5,
+            dictDefaultMessage: "Drop salon photos here or click to upload (JPEG, PNG, WebP · max 5 MB)",
+            success: function (file, response) {
+                loadPhotos();
+                this.removeFile(file);
+            },
+            error: function (file, message) {
+                alert("Upload failed: " + (message.title || message));
+                this.removeFile(file);
+            }
+        };
+
+        $(function () { loadPhotos(); });
+
+        function loadPhotos() {
+            $("#photoList").load("/HairSalons/@Model.Id/GetPhotos");
+        }
+
+        function deletePhoto(id) {
+            $.ajax({
+                url: "/HairSalons/DeletePhoto/" + id,
+                method: "POST",
+                success: function () { loadPhotos(); },
+                error: function () { alert("Delete failed."); }
+            });
+        }
+    </script>
 }

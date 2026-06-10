@@ -26,5 +26,6 @@ namespace manage_my_hairsaloon.Models
 
         public List<Staff> Staff { get; set; } = new();
         public List<Service> Services { get; set; } = new();
+        public List<SalonPhoto> Photos { get; set; } = new();
     }
 }
